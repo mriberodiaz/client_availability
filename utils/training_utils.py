@@ -129,6 +129,9 @@ def build_evaluate_fn(
 def build_sample_fn(
     a: Union[Sequence[Any], int],
     size: int,
+    f_distribution,
+    q_client,
+    num_clients,
     replace: bool = False,
     random_seed: Optional[int] = None) -> Callable[[int], np.ndarray]:
   """Builds the function for sampling from the input iterator at each round.
@@ -159,11 +162,22 @@ def build_sample_fn(
                  MLCG_MODULUS) * mlcg_start % MLCG_MODULUS
 
   def sample(round_num, random_seed):
+    time = round_num%24
+    time_availability = f_distribution[time]
+    probs = q_client*time_availability
+
+    availability = tf.random.stateless_binomial(shape=(num_clients,), 
+                                                seed=[1,round_num],
+                                                counts=tf.ones(num_clients), 
+                                                probs = probs, 
+                                                output_dtype=tf.float32)
+    available_clients = [id_ for i,id_ in enumerate(a) if availability[i]]
+
     if isinstance(random_seed, int):
       random_state = np.random.RandomState(get_pseudo_random_int(round_num))
     else:
       random_state = np.random.RandomState()
-    return random_state.choice(a, size=size, replace=replace)
+    return random_state.choice(available_clients, size=size, replace=replace),availability
 
   return functools.partial(sample, random_seed=random_seed)
 
@@ -193,18 +207,28 @@ def build_client_datasets_fn(
     A function which returns a list of `tf.data.Dataset` objects at a
     given round round_num.
   """
+  times = np.linspace(start=0, stop=2*np.pi, num=24)
+  f_distribution = np.sin(times)*0.4+0.6 # range between 0 - 1
+  NUM_CLIENTS = len(train_dataset.client_ids)
+  q_client = np.random.uniform(low=0.3, size = NUM_CLIENTS)
+
+
   sample_clients_fn = build_sample_fn(
       train_dataset.client_ids,
       size=train_clients_per_round,
       replace=False,
+      f_distribution=f_distribution,
+      q_client=q_client,
+      num_clients = NUM_CLIENTS,
       random_seed=random_seed)
 
   def client_datasets(round_num):
-    sampled_clients = sample_clients_fn(round_num)
-    return [
+    sampled_clients, availability = sample_clients_fn(round_num)
+    datasets = [
         train_dataset.create_tf_dataset_for_client(client)
         for client in sampled_clients
     ]
+    return datasets, availability, sampled_clients
 
   return client_datasets
 

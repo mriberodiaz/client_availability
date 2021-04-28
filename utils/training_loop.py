@@ -241,7 +241,7 @@ def run(iterative_process: tff.templates.IterativeProcess,
   loop_start_time = time.time()
   while round_num < total_rounds:
     data_prep_start_time = time.time()
-    federated_train_data = client_datasets_fn(round_num)
+    federated_train_data,availability, ids_clients = client_datasets_fn(round_num)
     train_metrics = {
         'prepare_datasets_secs': time.time() - data_prep_start_time
     }
@@ -262,26 +262,14 @@ def run(iterative_process: tff.templates.IterativeProcess,
       continue  # restart the loop without incrementing the round number
 
     train_metrics['training_secs'] = time.time() - training_start_time
+    train_metrics['num_available'] = sum(availability)
     train_metrics['model_delta_l2_norm'] = _compute_numpy_l2_difference(
         state.model, prev_model)
     if hasattr(state, 'num_participants'):
       train_metrics['num_participants'] = state.num_participants
-    if hasattr(state, 'threshold'):
-      train_metrics['threshold'] = state.threshold
-    if hasattr(state, 'global_norm_mean'):
-      logging.info(' THE GLOBAL NORM MEAN IS {state.global_norm_mean}')
-
-    size_info = environment.get_size_info()
-    broadcasted_bits = size_info.broadcast_bits[-1]
-    aggregated_bits = size_info.aggregate_bits[-1]
-
-    train_metrics['broadcasted'] = broadcasted_bits
-    train_metrics['aggregated'] = aggregated_bits
-
-    logging.info(' Communication cost aggregated: {aggregated_bits}   --  Broadcasted:  {broadcasted_bits}')
 
     train_metrics.update(round_metrics)
-
+    logging.info(f'Number of available clients: {sum(availability)} -  participant 1:  {ids_clients[0]}')
     logging.info('Round {:2d}, {:.2f}s per round in average.'.format(
         round_num, (time.time() - loop_start_time) / (round_num + 1)))
 

@@ -247,6 +247,8 @@ def run(iterative_process: tff.templates.IterativeProcess,
 
     train_metrics.update(round_metrics)
 
+    logging.info(f'Number of available clients: {sum(avail)} -  participant 1:  {idx_ids[0]}')
+
     logging.info('Round {:2d}, {:.2f}s per round in average.'.format(
         round_num, (time.time() - loop_start_time) / (round_num + 1)))
 
