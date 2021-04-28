@@ -207,10 +207,10 @@ def build_client_datasets_fn(
     A function which returns a list of `tf.data.Dataset` objects at a
     given round round_num.
   """
-  times = np.linspace(start=0, stop=2*np.pi, num=24)
-  f_distribution = np.sin(times)*0.4+0.6 # range between 0 - 1
   NUM_CLIENTS = len(train_dataset.client_ids)
-  q_client = np.random.uniform(low=0.3, size = NUM_CLIENTS)
+  times = np.linspace(start=0, stop=2*np.pi, num=24)
+  f_distribution = np.sin(times)*0.05+0.1 # range between 0 - 1
+  q_client = np.random.uniform(low=0.1, high=0.6,size = NUM_CLIENTS) # probability of being available for each client
 
 
   sample_clients_fn = build_sample_fn(
@@ -283,10 +283,11 @@ def build_availability_client_datasets_fn(
   """
 
   #Define availability parameters
-  times = np.linspace(start=0, stop=2*np.pi, num=24)
-  f_distribution = np.sin(times)*0.4+0.6 # range between 0 - 1
   NUM_CLIENTS = len(train_dataset.client_ids)
-  q_client = np.random.uniform(low=0.3, size = NUM_CLIENTS)
+  times = np.linspace(start=0, stop=2*np.pi, num=24)
+  f_distribution = np.sin(times)*0.05+0.1 # range between 0 - 1
+  q_client = np.random.uniform(low=0.1, high=0.6,size = NUM_CLIENTS) # probability of being available for each client
+
 
 
   p_vector = [ ]
