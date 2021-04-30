@@ -55,6 +55,7 @@ def run_federated(
     alpha: Optional[float] = 0.,
     beta_data: Optional[float] = 0.,
     iid: Optional[int] = 0,
+    num_users: Optional[int] = 1000,
     **kwargs):
   """Runs an iterative process on the EMNIST character recognition task.
 
@@ -110,7 +111,8 @@ def run_federated(
     test_batch_size = 100,
     alpha=alpha,
     beta=beta_data,
-    iid = iid)
+    iid = iid, 
+    num_users=num_users)
 
   input_spec = train_data.create_tf_dataset_for_client(
       train_data.client_ids[0]).element_spec
