@@ -143,7 +143,7 @@ def run_federated(
 
   if schedule =='none':
     client_datasets_fn = training_utils.build_client_datasets_fn(
-        train_dataset=emnist_train,
+        train_dataset=train_data,
         train_clients_per_round=clients_per_round,
         random_seed=client_datasets_random_seed)
     training_loop.run(
@@ -157,7 +157,7 @@ def run_federated(
         **kwargs)
   else:
     client_datasets_fn = training_utils.build_availability_client_datasets_fn(
-      train_dataset = emnist_train, 
+      train_dataset = train_data, 
       train_clients_per_round = clients_per_round, 
       beta = beta)
     training_loop_importance.run(
