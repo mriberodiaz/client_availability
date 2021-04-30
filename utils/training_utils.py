@@ -286,8 +286,9 @@ def build_availability_client_datasets_fn(
   NUM_CLIENTS = len(train_dataset.client_ids)
   times = np.linspace(start=0, stop=2*np.pi, num=24)
   f_distribution = np.sin(times)*0.05+0.1 # range between 0 - 1
-  q_client = np.random.uniform(low=0.1, high=0.6,size = NUM_CLIENTS) # probability of being available for each client
-
+  # q_client = np.random.uniform(low=0.1, high=0.6,size = NUM_CLIENTS) # probability of being available for each client
+  q_client = np.random.lognormal(0.5, 1, (NUM_CLIENTS))
+  q_client = q_client/max(q_client)
 
 
   p_vector = [ ]
