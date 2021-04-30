@@ -103,6 +103,12 @@ with utils_impl.record_hparam_flags() as cifar100_flags:
   # CIFAR-100 flags
   flags.DEFINE_integer('cifar100_crop_size', 24, 'The height and width of '
                        'images after preprocessing.')
+with utils_impl.record_hparam_flags() as synthetic_flags:
+  # CIFAR-100 flags
+  flags.DEFINE_float('alpha', 0.5, 'heterogeneity of models.')
+  flags.DEFINE_float('beta_data', 0.5, 'heterogeneity of data.')
+  flags.DEFINE_integer('iid', 0, 'only one global model.')
+
 
 with utils_impl.record_hparam_flags() as emnist_cr_flags:
   # EMNIST CR flags
@@ -158,7 +164,8 @@ TASK_FLAGS = collections.OrderedDict(
     emnist_cr=emnist_cr_flags,
     shakespeare=shakespeare_flags,
     stackoverflow_nwp=so_nwp_flags,
-    stackoverflow_lr=so_lr_flags)
+    stackoverflow_lr=so_lr_flags,
+    synthetic=synthetic_flags)
 
 TASK_FLAG_PREFIXES = collections.OrderedDict(
     cifar100='cifar100',
@@ -166,7 +173,8 @@ TASK_FLAG_PREFIXES = collections.OrderedDict(
     emnist_ae='emnist_ae',
     shakespeare='shakespeare',
     stackoverflow_nwp='so_nwp',
-    stackoverflow_lr='so_lr')
+    stackoverflow_lr='so_lr',
+    synthetics='synthetic')
 
 
 def _get_hparam_flags():
