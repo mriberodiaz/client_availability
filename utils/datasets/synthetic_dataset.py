@@ -39,35 +39,34 @@ def softmax(x):
     return ex/sum_ex
 
 
-def generate_synthetic(alpha, beta, iid):
+def generate_synthetic(alpha, beta, iid, num_users):
 
     dimension = 60
     NUM_CLASS = 10
-    NUM_USER = 100
     
-    samples_per_user = np.random.lognormal(4, 2, (NUM_USER)).astype(int) + 50
+    samples_per_user = np.random.lognormal(4, 2, (num_users)).astype(int) + 50
     #print(samples_per_user)
     num_samples = np.sum(samples_per_user)
 
-    X_train_split = [[] for _ in range(NUM_USER)]
-    y_train_split = [[] for _ in range(NUM_USER)]
+    X_train_split = [[] for _ in range(num_users)]
+    y_train_split = [[] for _ in range(num_users)]
 
-    X_test_split = [[] for _ in range(NUM_USER)]
-    y_test_split = [[] for _ in range(NUM_USER)]
+    X_test_split = [[] for _ in range(num_users)]
+    y_test_split = [[] for _ in range(num_users)]
 
 
     #### define some eprior ####
-    mean_W = np.random.normal(0, alpha, NUM_USER)
+    mean_W = np.random.normal(0, alpha, num_users)
     mean_b = mean_W
-    B = np.random.normal(0, beta, NUM_USER)
-    mean_x = np.zeros((NUM_USER, dimension))
+    B = np.random.normal(0, beta, num_users)
+    mean_x = np.zeros((num_users, dimension))
 
     diagonal = np.zeros(dimension)
     for j in range(dimension):
         diagonal[j] = np.power((j+1), -1.2)
     cov_x = np.diag(diagonal)
 
-    for i in range(NUM_USER):
+    for i in range(num_users):
         if iid == 1:
             mean_x[i] = np.ones(dimension) * B[i]  # all zeros
         else:
@@ -78,7 +77,7 @@ def generate_synthetic(alpha, beta, iid):
         W_global = np.random.normal(0, 1, (dimension, NUM_CLASS))
         b_global = np.random.normal(0, 1,  NUM_CLASS)
 
-    for i in range(NUM_USER):
+    for i in range(num_users):
 
         W = np.random.normal(mean_W[i], 1, (dimension, NUM_CLASS))
         b = np.random.normal(mean_b[i], 1,  NUM_CLASS)
@@ -115,16 +114,15 @@ def generate_synthetic(alpha, beta, iid):
     return X_train_split, y_train_split, X_test_split, y_test_split
 
 
-def generate_federated_softmax_data(batch_size,
+def generate_federated_softmax_data(num_users,batch_size,
     client_epochs_per_round, 
     test_batch_size,
     alpha,
     beta,
     iid):
-    NUM_USER = 30
 
 
-    X_train, y_train, X_test,y_test = generate_synthetic(alpha=alpha, beta=beta, iid=iid)     # synthetic (1,1)
+    X_train, y_train, X_test,y_test = generate_synthetic(alpha=alpha, beta=beta, iid=iid, num_users=num_users)     # synthetic (1,1)
     #X, y = generate_synthetic(alpha=0, beta=0, iid=1)      # synthetic_IID
 
 
@@ -139,7 +137,7 @@ def generate_federated_softmax_data(batch_size,
                             y= y_test[client_id],
                            ))
 
-    clients_ids = np.arange(NUM_USER).tolist()
+    clients_ids = np.arange(num_users).tolist()
     federated_data = tff.simulation.ClientData.from_clients_and_fn(clients_ids, get_client_train_data)
     test_data  = tff.simulation.ClientData.from_clients_and_fn(clients_ids, get_client_test_data)
 
