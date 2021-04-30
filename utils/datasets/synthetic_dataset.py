@@ -49,8 +49,11 @@ def generate_synthetic(alpha, beta, iid):
     #print(samples_per_user)
     num_samples = np.sum(samples_per_user)
 
-    X_split = [[] for _ in range(NUM_USER)]
-    y_split = [[] for _ in range(NUM_USER)]
+    X_train_split = [[] for _ in range(NUM_USER)]
+    y_train_split = [[] for _ in range(NUM_USER)]
+
+    X_test_split = [[] for _ in range(NUM_USER)]
+    y_test_split = [[] for _ in range(NUM_USER)]
 
 
     #### define some eprior ####
@@ -87,37 +90,58 @@ def generate_synthetic(alpha, beta, iid):
         xx = np.random.multivariate_normal(mean_x[i], cov_x, samples_per_user[i])
         yy = np.zeros(samples_per_user[i])
 
+
+        train_len = int(0.9 * samples_per_user[i])
+
         for j in range(samples_per_user[i]):
             tmp = np.dot(xx[j], W) + b
             yy[j] = np.argmax(softmax(tmp))
 
-        X_split[i] = xx.tolist()
-        y_split[i] = yy.tolist()
+        xx_train = xx[:train_len]
+        yy_train = yy[:train_len]
+
+        X_train_split[i] = xx_train.tolist()
+        y_train_split[i] = yy_train.tolist()
+
+        xx_test = xx[train_len:]
+        yy_test = yy[train_len:]
+
+        X_test_split[i] = xx_test.tolist()
+        y_test_split[i] = yy_test.tolist()
 
         #print("{}-th users has {} exampls".format(i, len(y_split[i])))
 
 
-    return X_split, y_split
+    return X_train_split, y_train_split, X_test_split, y_test_split
 
 
 def generate_federated_softmax_data(batch_size,
     client_epochs_per_round, 
-    test_batch_size):
-    NUM_USER = 100
-    num_test_clients=10
+    test_batch_size,
+    alpha,
+    beta,
+    iid):
+    NUM_USER = 30
 
-    X, y = generate_synthetic(alpha=1, beta=1, iid=0)     # synthetic (1,1)
+
+    X_train, y_train, X_test,y_test = generate_synthetic(alpha=alpha, beta=beta, iid=iid)     # synthetic (1,1)
     #X, y = generate_synthetic(alpha=0, beta=0, iid=1)      # synthetic_IID
 
-    def get_client_data(client_id):
+
+    def get_client_train_data(client_id):
         return tf.data.Dataset.from_tensor_slices(
-            collections.OrderedDict(x= X[client_id],
-                            y= y[client_id],
+            collections.OrderedDict(x= X_train[client_id],
+                            y= y_train[client_id],
+                           ))
+    def get_client_test_data(client_id):
+        return tf.data.Dataset.from_tensor_slices(
+            collections.OrderedDict(x= X_test[client_id],
+                            y= y_test[client_id],
                            ))
 
     clients_ids = np.arange(NUM_USER).tolist()
-    federated_data = tff.simulation.ClientData.from_clients_and_fn(clients_ids, get_client_data)
-    train, test = federated_data.train_test_client_split(federated_data, num_test_clients)
+    federated_data = tff.simulation.ClientData.from_clients_and_fn(clients_ids, get_client_train_data)
+    test_data  = tff.simulation.ClientData.from_clients_and_fn(clients_ids, get_client_test_data)
 
     def preprocess_train_dataset(dataset):
         return dataset.shuffle(buffer_size=418).repeat(
@@ -127,10 +151,10 @@ def generate_federated_softmax_data(batch_size,
     def preprocess_test_dataset(dataset):
         return dataset.batch(test_batch_size, drop_remainder=False)
 
-    train = train.preprocess(preprocess_train_dataset)
-    test = preprocess_test_dataset( test.create_tf_dataset_from_all_clients())
+    preprocessed_fed_train_data = federated_data.preprocess(preprocess_train_dataset)
+    preprocessed_test_data = preprocess_test_dataset( test_data.create_tf_dataset_from_all_clients())
 
-    return train, test
+    return preprocess_train_dataset,preprocess_test_dataset
 
 
 def create_lr_federatedClientData(dimension, 
