@@ -174,7 +174,7 @@ TASK_FLAG_PREFIXES = collections.OrderedDict(
     shakespeare='shakespeare',
     stackoverflow_nwp='so_nwp',
     stackoverflow_lr='so_lr',
-    synthetics='synthetic')
+    synthetic='synthetic')
 
 
 def _get_hparam_flags():
