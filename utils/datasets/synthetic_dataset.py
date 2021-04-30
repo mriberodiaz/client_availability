@@ -154,7 +154,7 @@ def generate_federated_softmax_data(batch_size,
     preprocessed_fed_train_data = federated_data.preprocess(preprocess_train_dataset)
     preprocessed_test_data = preprocess_test_dataset( test_data.create_tf_dataset_from_all_clients())
 
-    return preprocess_train_dataset,preprocess_test_dataset
+    return preprocessed_fed_train_data, preprocess_test_data
 
 
 def create_lr_federatedClientData(dimension, 
