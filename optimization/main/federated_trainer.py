@@ -108,6 +108,7 @@ with utils_impl.record_hparam_flags() as synthetic_flags:
   flags.DEFINE_float('alpha', 0.5, 'heterogeneity of models.')
   flags.DEFINE_float('beta_data', 0.5, 'heterogeneity of data.')
   flags.DEFINE_integer('iid', 0, 'only one global model.')
+  flags.DEFINE_integer('num_users', 1000, 'Number of clients')
 
 
 with utils_impl.record_hparam_flags() as emnist_cr_flags:
