@@ -166,12 +166,15 @@ def build_sample_fn(
     time_availability = f_distribution[time]
     probs = q_client*time_availability
 
-    availability = tf.random.stateless_binomial(shape=(num_clients,), 
-                                                seed=[1,round_num],
-                                                counts=tf.ones(num_clients), 
-                                                probs = probs, 
-                                                output_dtype=tf.float32)
-    available_clients = [id_ for i,id_ in enumerate(a) if availability[i]]
+    available_clients = []
+
+    while len(available_clients)<size:
+      availability = tf.random.stateless_binomial(shape=(num_clients,), 
+                                                  seed=[1,round_num],
+                                                  counts=tf.ones(num_clients), 
+                                                  probs = probs, 
+                                                  output_dtype=tf.float32)
+      available_clients = [id_ for i,id_ in enumerate(a) if availability[i]]
 
     if isinstance(random_seed, int):
       random_state = np.random.RandomState(get_pseudo_random_int(round_num))
@@ -209,9 +212,14 @@ def build_client_datasets_fn(
   """
   NUM_CLIENTS = len(train_dataset.client_ids)
   times = np.linspace(start=0, stop=2*np.pi, num=24)
-  f_distribution = np.sin(times)*0.05+0.1 # range between 0 - 1
-  q_client = np.random.uniform(low=0.1, high=0.6,size = NUM_CLIENTS) # probability of being available for each client
+  f_distribution = np.sin(times)*0.4+0.5 # range between 0 - 1
+  created_q = False
 
+  while !created_q:
+    q_client = np.random.lognormal(0.5, 1, (NUM_CLIENTS))
+    q_client = q_client/max(q_client)
+    if sum(q_client)*f_distribution[16]>50:
+      created_q=True
 
   sample_clients_fn = build_sample_fn(
       train_dataset.client_ids,
