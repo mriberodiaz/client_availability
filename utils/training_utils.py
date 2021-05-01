@@ -215,7 +215,7 @@ def build_client_datasets_fn(
   f_distribution = np.sin(times)*0.4+0.5 # range between 0 - 1
   created_q = False
 
-  while !created_q:
+  while  not created_q:
     q_client = np.random.lognormal(0.5, 1, (NUM_CLIENTS))
     q_client = q_client/max(q_client)
     if sum(q_client)*f_distribution[16]>50:
