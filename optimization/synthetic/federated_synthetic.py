@@ -21,6 +21,7 @@ import tensorflow as tf
 import tensorflow_federated as tff
 
 from utils import training_loop
+from utils import training_loop_importance
 from utils import training_utils
 from utils.datasets import synthetic_dataset
 
