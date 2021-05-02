@@ -216,7 +216,7 @@ def build_client_datasets_fn(
   created_q = False
 
   while  not created_q:
-    q_client = np.random.lognormal(0.5, 1, (NUM_CLIENTS))
+    q_client = np.random.lognormal(0., 0.25, (NUM_CLIENTS))
     q_client = q_client/max(q_client)
     if sum(q_client)*f_distribution[16]>50:
       created_q=True
