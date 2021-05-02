@@ -198,6 +198,9 @@ def run(iterative_process: tff.templates.IterativeProcess,
       root_output_dir, experiment_name, hparam_dict, write_metrics_with_bz2,
       rounds_per_profile)
 
+  results_r_vec_dir = os.path.join(root_output_dir, 'results', experiment_name, 'r_vec')
+  create_if_not_exists(results_r_vec_dir)
+
   logging.info('Asking checkpoint manager to load checkpoint.')
   state, round_num = checkpoint_mngr.load_latest_checkpoint(initial_state)
 
@@ -221,7 +224,7 @@ def run(iterative_process: tff.templates.IterativeProcess,
     train_metrics = {
         'prepare_datasets_secs': time.time() - data_prep_start_time
     }
-    np.save(results_dir+f'r_vec{round_num}.npy', r_vec.numpy)
+    np.save( os.path.join(results_r_vec_dir, f'r_vec{round_num}.npy'), r_vec.numpy)
     training_start_time = time.time()
     prev_model = state.model
     # TODO(b/145604851): This try/except is used to circumvent ambiguous TF
