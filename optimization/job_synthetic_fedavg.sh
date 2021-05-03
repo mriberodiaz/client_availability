@@ -1,7 +1,7 @@
  #!/bin/bash
  for alpha in 0 0.25 0.5
  do
-	for bd in 0 0.25 0.25
+	for bd in 0 0.25 0.5
 	do
 		for clients in 2 5 10
 		do
