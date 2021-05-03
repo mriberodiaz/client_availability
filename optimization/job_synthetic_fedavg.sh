@@ -1,5 +1,5 @@
  #!/bin/bash
- for alpha in 0 0.25 0.5
+ for alpha in 0.5
  do
 	for bd in 0 0.25 0.5
 	do
