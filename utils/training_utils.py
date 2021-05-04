@@ -188,7 +188,12 @@ def build_sample_fn(
 def build_client_datasets_fn(
     train_dataset: tff.simulation.ClientData,
     train_clients_per_round: int,
-    random_seed: Optional[int] = None
+    random_seed: Optional[int] = None,
+    min_clients: Optional[int] = 50,
+    var_q_clients: Optional[int] = 0.25,
+    f_mult: Optional[float] = 0.4,
+    f_intercept: Optional[float] = 0.5,
+
 ) -> Callable[[int], List[tf.data.Dataset]]:
   """Builds the function for generating client datasets at each round.
 
@@ -212,13 +217,14 @@ def build_client_datasets_fn(
   """
   NUM_CLIENTS = len(train_dataset.client_ids)
   times = np.linspace(start=0, stop=2*np.pi, num=24)
-  f_distribution = np.sin(times)*0.4+0.5 # range between 0 - 1
+  f_distribution = np.sin(times)*f_mult+f_intercept # range between 0 - 1
   created_q = False
 
   while  not created_q:
-    q_client = np.random.lognormal(0., 0.25, (NUM_CLIENTS))
+    logging.info(' creating q')
+    q_client = np.random.lognormal(0., var_q_clients, (NUM_CLIENTS))
     q_client = q_client/max(q_client)
-    if sum(q_client)*f_distribution[16]>50:
+    if sum(q_client)*f_distribution[17]>min_clients:
       created_q=True
 
   sample_clients_fn = build_sample_fn(
@@ -267,7 +273,11 @@ def build_availability_client_datasets_fn(
     train_dataset: tff.simulation.ClientData,
     train_clients_per_round: int,
     beta,
-    random_seed: Optional[int] = None
+    random_seed: Optional[int] = None,
+    min_clients: Optional[int] = 50,
+    var_q_clients: Optional[int] = 0.25,
+    f_mult: Optional[float] = 0.4,
+    f_intercept: Optional[float] = 0.5,
 ) -> Callable[[int], List[tf.data.Dataset]]:
   """Builds the function for generating client datasets at each round.
 
@@ -293,13 +303,14 @@ def build_availability_client_datasets_fn(
   #Define availability parameters
   NUM_CLIENTS = len(train_dataset.client_ids)
   times = np.linspace(start=0, stop=2*np.pi, num=24)
-  f_distribution = np.sin(times)*0.4+0.5 # range between 0 - 1
+  f_distribution = np.sin(times)*f_mult+f_intercept # range between 0 - 1
   created_q = False
 
   while  not created_q:
-    q_client = np.random.lognormal(0., 0.25, (NUM_CLIENTS))
+    logging.info(' creating q')
+    q_client = np.random.lognormal(0., var_q_clients, (NUM_CLIENTS))
     q_client = q_client/max(q_client)
-    if sum(q_client)*f_distribution[16]>50:
+    if sum(q_client)*f_distribution[17]>min_clients:
       created_q=True
 
 
