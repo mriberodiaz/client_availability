@@ -21,6 +21,7 @@ import tensorflow as tf
 import tensorflow_federated as tff
 
 from utils import training_loop
+from utils import training_loop_importance
 from utils import training_utils
 from utils.datasets import cifar100_dataset
 from utils.models import resnet_models
@@ -34,6 +35,8 @@ def run_federated(
     client_epochs_per_round: int,
     client_batch_size: int,
     clients_per_round: int,
+    schedule: Optional[str]='none',
+    beta: Optional[float] = 0.,
     max_batches_per_client: Optional[int] = -1,
     client_datasets_random_seed: Optional[int] = None,
     crop_size: Optional[int] = 24,
@@ -122,11 +125,6 @@ def run_federated(
 
   training_process = iterative_process_builder(tff_model_fn)
 
-  client_datasets_fn = training_utils.build_client_datasets_fn(
-      train_dataset=cifar_train,
-      train_clients_per_round=clients_per_round,
-      random_seed=client_datasets_random_seed)
-
   evaluate_fn = training_utils.build_evaluate_fn(
       eval_dataset=cifar_test,
       model_builder=model_builder,
@@ -136,12 +134,32 @@ def run_federated(
   logging.info('Training model:')
   logging.info(model_builder().summary())
 
-  training_loop.run(
-      iterative_process=training_process,
-      client_datasets_fn=client_datasets_fn,
-      validation_fn=evaluate_fn,
-      test_fn=evaluate_fn,
-      total_rounds=total_rounds,
-      experiment_name=experiment_name,
-      root_output_dir=root_output_dir,
-      **kwargs)
+  if schedule=='none':
+    client_datasets_fn = training_utils.build_client_datasets_fn(
+      train_dataset=cifar_train,
+      train_clients_per_round=clients_per_round,
+      random_seed=client_datasets_random_seed)
+
+    training_loop.run(
+        iterative_process=training_process,
+        client_datasets_fn=client_datasets_fn,
+        validation_fn=evaluate_fn,
+        test_fn=evaluate_fn,
+        total_rounds=total_rounds,
+        experiment_name=experiment_name,
+        root_output_dir=root_output_dir,
+        **kwargs)
+  else:
+    client_datasets_fn = training_utils.build_availability_client_datasets_fn(
+      train_dataset = train_data, 
+      train_clients_per_round = clients_per_round, 
+      beta = beta)
+    training_loop_importance.run(
+        iterative_process=training_process,
+        client_datasets_fn=client_datasets_fn,
+        validation_fn=evaluate_fn,
+        test_fn=evaluate_fn,
+        total_rounds=total_rounds,
+        experiment_name=experiment_name,
+        root_output_dir=root_output_dir,
+        **kwargs)
