@@ -155,8 +155,9 @@ def run_federated(
         **kwargs)
   else:
     client_datasets_fn = training_utils.build_availability_client_datasets_fn(
-      train_dataset = train_data, 
+      train_dataset = cifar_train, 
       train_clients_per_round = clients_per_round, 
+      random_seed=client_datasets_random_seed,
       beta = beta,
       min_clients=15,
       var_q_clients=0.25,
