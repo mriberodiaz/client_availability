@@ -126,7 +126,8 @@ def build_evaluate_fn(
   return evaluate_fn
 
 def build_unweighted_test_fn(
-    federated_eval_dataset: tf.data.Dataset, model_builder: Callable[[], tf.keras.Model],
+    federated_eval_dataset: Any, 
+    model_builder: Callable[[], tf.keras.Model],
     loss_builder: Callable[[], tf.keras.losses.Loss],
     metrics_builder: Callable[[], List[tf.keras.metrics.Metric]]
 ) -> Callable[[tff.learning.ModelWeights], Dict[str, Any]]:
