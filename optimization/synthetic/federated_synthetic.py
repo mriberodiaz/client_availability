@@ -22,6 +22,7 @@ import tensorflow_federated as tff
 
 from utils import training_loop
 from utils import training_loop_importance
+from utils import training_loop_loss
 from utils import training_utils
 from utils.datasets import synthetic_dataset
 
@@ -53,6 +54,7 @@ def run_federated(
     experiment_name: Optional[str] = 'federated_synthetic',
     root_output_dir: Optional[str] = '/tmp/fed_opt',
     max_eval_batches: Optional[int] = None,
+    loss_pool_size: Optional[int] = None,
     alpha: Optional[float] = 0.,
     beta_data: Optional[float] = 0.,
     iid: Optional[int] = 0,
@@ -163,7 +165,8 @@ def run_federated(
         min_clients=min_clients,
         var_q_clients=var_q_clients,
         f_mult=f_mult,
-        f_intercept=f_intercept
+        f_intercept=f_intercept,
+        use_p=True,
         )
     training_loop.run(
         iterative_process=training_process,
@@ -171,6 +174,26 @@ def run_federated(
         validation_fn=evaluate_fn,
         test_fn=test_fn,
         total_rounds=total_rounds,
+        experiment_name=experiment_name,
+        root_output_dir=root_output_dir,
+        **kwargs)
+  elif schedule=='loss'
+    client_datasets_fn = training_utils.build_loss_client_datasets_fn(
+        train_dataset=emnist_train,
+        train_clients_per_round=loss_pool_size,
+        random_seed=client_datasets_random_seed,
+        min_clients=min_clients,
+        var_q_clients=var_q_clients,
+        f_mult=f_mult,
+        f_intercept=f_intercept, 
+        use_p=True)
+    training_loop_loss.run(
+        iterative_process=training_process,
+        client_datasets_fn=client_datasets_fn,
+        validation_fn=evaluate_fn,
+        test_fn=test_fn,
+        total_rounds=total_rounds,
+        total_clients = loss_pool_size,
         experiment_name=experiment_name,
         root_output_dir=root_output_dir,
         **kwargs)
