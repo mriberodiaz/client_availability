@@ -187,6 +187,8 @@ def build_sample_fn(
     q_client,
     num_clients,
     replace: bool = False,
+    use_p: bool= False,
+    p_vector:Union[Sequence[Any], int]
     random_seed: Optional[int] = None) -> Callable[[int], np.ndarray]:
   """Builds the function for sampling from the input iterator at each round.
 
@@ -219,7 +221,6 @@ def build_sample_fn(
     time = round_num%24
     time_availability = f_distribution[time]
     probs = q_client*time_availability
-
     available_clients = []
 
     while len(available_clients)<size:
@@ -229,15 +230,19 @@ def build_sample_fn(
                                                   probs = probs, 
                                                   output_dtype=tf.float32)
       available_clients = [id_ for i,id_ in enumerate(a) if availability[i]]
+      if use_p:
+        probs_data = p_vector[[i for i,id_ in enumerate(a) if availability[i]]]
+        probs_data = probs_data/np.sum(probs_data)
+      else:
+        probs_data = np.repeat(1/len(available_clients), len(available_clients))
 
     if isinstance(random_seed, int):
       random_state = np.random.RandomState(get_pseudo_random_int(round_num))
     else:
       random_state = np.random.RandomState()
-    return random_state.choice(available_clients, size=size, replace=replace),availability
+    return random_state.choice(available_clients, size=size, replace=replace, p=probs),availability
 
   return functools.partial(sample, random_seed=random_seed)
-
 
 def build_client_datasets_fn(
     train_dataset: tff.simulation.ClientData,
@@ -248,8 +253,7 @@ def build_client_datasets_fn(
     var_q_clients: Optional[float] = 0.25,
     f_mult: Optional[float] = 0.4,
     f_intercept: Optional[float] = 0.5,
-
-) -> Callable[[int], List[tf.data.Dataset]]:
+    use_p: Optional[bool] = False) -> Callable[[int], List[tf.data.Dataset]]:
   """Builds the function for generating client datasets at each round.
 
   The function samples a number of clients (without replacement within a given
@@ -284,15 +288,22 @@ def build_client_datasets_fn(
     q_client = q_client/max(q_client)
     if sum(q_client)*f_distribution[17]>min_clients:
       created_q=True
+  p_vector = [ ]
+  for client_id in train_dataset.client_ids:
+    dataset = train_dataset.create_tf_dataset_for_client(client_id)
+    p_vector.append(len(list(dataset)))
+  p_vector = np.array(p_vector)/sum(p_vector)
 
   sample_clients_fn = build_sample_fn(
       train_dataset.client_ids,
       size=train_clients_per_round,
-      replace=False,
+      replace=True,
       f_distribution=f_distribution,
       q_client=q_client,
       num_clients = NUM_CLIENTS,
-      random_seed=random_seed)
+      random_seed=random_seed, 
+      use_p=use_p,
+      p_vector=p_vector)
 
   def client_datasets(round_num):
     sampled_clients, availability = sample_clients_fn(round_num)
