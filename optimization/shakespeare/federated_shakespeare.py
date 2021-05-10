@@ -22,6 +22,8 @@ import tensorflow_federated as tff
 
 from optimization.shared import keras_metrics
 from utils import training_loop
+from utils import training_loop_importance
+from utils import training_loop_loss
 from utils import training_utils
 from utils.datasets import shakespeare_dataset
 from utils.models import shakespeare_models
@@ -63,6 +65,7 @@ def run_federated(
     experiment_name: Optional[str] = 'federated_shakespeare',
     root_output_dir: Optional[str] = '/tmp/fed_opt',
     max_eval_batches: Optional[int] = None,
+    loss_pool_size: Optional[int] = None,
     sine_wave:Optional[bool] = True,
     var_q_clients: Optional[float] = 0.25,
     f_mult: Optional[float] = 0.4,
@@ -179,13 +182,34 @@ def run_federated(
       min_clients=min_clients,
       var_q_clients=var_q_clients,
       f_mult=f_mult,
-      f_intercept=f_intercept)
+      f_intercept=f_intercept, 
+      use_p = True)
     training_loop.run(
         iterative_process=training_process,
         client_datasets_fn=client_datasets_fn,
         validation_fn=evaluate_fn,
         test_fn=evaluate_fn,
         total_rounds=total_rounds,
+        experiment_name=experiment_name,
+        root_output_dir=root_output_dir,
+        **kwargs)
+  elif schedule=='loss'
+    client_datasets_fn = training_utils.build_loss_client_datasets_fn(
+        train_dataset=emnist_train,
+        train_clients_per_round=loss_pool_size,
+        random_seed=client_datasets_random_seed,
+        min_clients=min_clients,
+        var_q_clients=var_q_clients,
+        f_mult=f_mult,
+        f_intercept=f_intercept, 
+        use_p=True)
+    training_loop_loss.run(
+        iterative_process=training_process,
+        client_datasets_fn=client_datasets_fn,
+        validation_fn=evaluate_fn,
+        test_fn=test_fn,
+        total_rounds=total_rounds,
+        total_clients = loss_pool_size,
         experiment_name=experiment_name,
         root_output_dir=root_output_dir,
         **kwargs)
