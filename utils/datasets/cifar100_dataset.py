@@ -105,9 +105,10 @@ def get_federated_cifar100(client_epochs_per_round,
         TEST_BATCH_SIZE, drop_remainder=False).map(test_image_map)
 
   cifar_train = cifar_train.preprocess(preprocess_train_dataset)
+  federated_cifar_test = cifar_test.preprocess(preprocess_test_dataset)
   cifar_test = preprocess_test_dataset(
       cifar_test.create_tf_dataset_from_all_clients()).cache()
-  return cifar_train, cifar_test
+  return cifar_train, cifar_test, federated_cifar_test
 
 
 def get_centralized_datasets(train_batch_size: int,
