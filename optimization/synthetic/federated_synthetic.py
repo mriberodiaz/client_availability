@@ -177,7 +177,7 @@ def run_federated(
         experiment_name=experiment_name,
         root_output_dir=root_output_dir,
         **kwargs)
-  elif schedule=='loss'
+  elif schedule=='loss':
     client_datasets_fn = training_utils.build_loss_client_datasets_fn(
         train_dataset=emnist_train,
         train_clients_per_round=loss_pool_size,
