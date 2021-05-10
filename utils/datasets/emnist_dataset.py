@@ -88,9 +88,10 @@ def get_emnist_datasets(client_batch_size: int,
         num_parallel_calls=tf.data.experimental.AUTOTUNE).cache())
 
   emnist_train = emnist_train.preprocess(preprocess_train_dataset)
+  federated_emnist_test = emnist_test.preprocess(preprocess_test_dataset)
   emnist_test = preprocess_test_dataset(
       emnist_test.create_tf_dataset_from_all_clients())
-  return emnist_train, emnist_test
+  return emnist_train, emnist_test, federated_emnist_test
 
 
 def get_centralized_datasets(train_batch_size: int,
