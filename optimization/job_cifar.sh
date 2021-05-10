@@ -1,0 +1,6 @@
+ #!/bin/bash
+bazel run main:federated_trainer -- --task=cifar100 --total_rounds=1000 --client_optimizer=sgd --client_learning_rate=0.1 --client_batch_size=20 --server_optimizer=sgd  --clients_per_round=10 --client_epochs_per_round=1 --root_output_dir=/home/monica/RESULTS/client_availability/cifar100/ --schedule=none --server_learning_rate=3.162 --experiment_name=cifar_fedavg_waveFalse --sine_wave=False --var_q_clients=0.5
+
+bazel run main:federated_trainer -- --task=cifar100 --total_rounds=1000 --client_optimizer=sgd --client_learning_rate=0.1 --client_batch_size=20 --server_optimizer=sgd  --clients_per_round=10 --client_epochs_per_round=1 --root_output_dir=/home/monica/RESULTS/client_availability/cifar100/ --schedule=importance --beta=0.001 --server_learning_rate=3.162 --experiment_name=cifar_importance_waveFalse --sine_wave=False --var_q_clients=0.5
+
+bazel run main:federated_trainer -- --task=cifar100 --total_rounds=1000 --client_optimizer=sgd --client_learning_rate=0.1 --client_batch_size=20 --server_optimizer=sgd  --clients_per_round=10 --client_epochs_per_round=1 --root_output_dir=/home/monica/RESULTS/client_availability/cifar100/ --schedule=loss --server_learning_rate=3.162 --experiment_name=cifar_loss_waveFalse --sine_wave=False --var_q_clients=0.5 --loss_pool_size=30
