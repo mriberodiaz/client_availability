@@ -182,13 +182,13 @@ def build_unweighted_test_fn(
 
 def build_sample_fn(
     a: Union[Sequence[Any], int],
+    p_vector:Union[Sequence[Any], int],
     size: int,
     f_distribution,
     q_client,
     num_clients,
     replace: bool = False,
     use_p: bool= False,
-    p_vector:Union[Sequence[Any], int],
     random_seed: Optional[int] = None) -> Callable[[int], np.ndarray]:
   """Builds the function for sampling from the input iterator at each round.
 
