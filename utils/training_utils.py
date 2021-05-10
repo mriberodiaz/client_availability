@@ -158,6 +158,7 @@ def build_unweighted_test_fn(
         metrics=metrics_builder())
     return model
 
+  client_ids = federated_eval_dataset.client_ids
 
   def evaluate_fn(reference_model: tff.learning.ModelWeights) -> Dict[str, Any]:
     """Evaluation function to be used during training."""
@@ -170,7 +171,7 @@ def build_unweighted_test_fn(
     reference_model.assign_weights_to(keras_model)
     logging.info('Evaluating the current model')
     results = {}
-    for client_id in federated_eval_dataset.client_ids:
+    for client_id in client_ids:
       client_data = federated_eval_dataset.create_tf_dataset_for_client(client_id)
       eval_tuple_dataset = convert_to_tuple_dataset(client_data)
       eval_metrics = keras_model.evaluate(eval_tuple_dataset, verbose=0)
