@@ -141,7 +141,7 @@ def construct_character_level_datasets(client_batch_size: int,
                      ' intended, then max_batches_per_client must be set to '
                      'some positive integer.')
 
-  train_client_data, _ = (tff.simulation.datasets.shakespeare.load_data())
+  train_client_data, test_client_data = (tff.simulation.datasets.shakespeare.load_data())
 
   preprocessed_train_client_data = train_client_data.preprocess(
       functools.partial(
@@ -151,8 +151,15 @@ def construct_character_level_datasets(client_batch_size: int,
           shuffle_buffer_size=shuffle_buffer_size,
           sequence_length=sequence_length,
           max_batches_per_client=max_batches_per_client))
+  federated_test_data = test_client_data.preprocess(
+      functools.partial(
+          convert_snippets_to_character_sequence_examples,
+          batch_size=client_batch_size,
+          epochs=1,
+          shuffle_buffer_size=0,
+          sequence_length=sequence_length))
 
-  return preprocessed_train_client_data
+  return preprocessed_train_client_data, federated_test_data
 
 
 def get_centralized_datasets(train_batch_size: int,
