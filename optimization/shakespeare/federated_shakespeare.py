@@ -54,6 +54,8 @@ def run_federated(
     client_epochs_per_round: int,
     client_batch_size: int,
     clients_per_round: int,
+    schedule: Optional[str]='none',
+    beta: Optional[float] = 0.,
     max_batches_per_client: Optional[int] = -1,
     client_datasets_random_seed: Optional[int] = None,
     sequence_length: Optional[int] = 80,
@@ -61,6 +63,11 @@ def run_federated(
     experiment_name: Optional[str] = 'federated_shakespeare',
     root_output_dir: Optional[str] = '/tmp/fed_opt',
     max_eval_batches: Optional[int] = None,
+    sine_wave:Optional[bool] = True,
+    var_q_clients: Optional[float] = 0.25,
+    f_mult: Optional[float] = 0.4,
+    f_intercept: Optional[float] = 0.5,
+    min_clients:Optional[int] = 15,
     **kwargs):
   """Runs an iterative process on a Shakespeare next character prediction task.
 
@@ -109,7 +116,7 @@ def run_federated(
       `federated_research/utils/training_utils.py`.
   """
 
-  train_clientdata = shakespeare_dataset.construct_character_level_datasets(
+  train_clientdata, federated_test_data = shakespeare_dataset.construct_character_level_datasets(
       client_batch_size=client_batch_size,
       client_epochs_per_round=client_epochs_per_round,
       sequence_length=sequence_length,
@@ -154,16 +161,52 @@ def run_federated(
       model_builder=model_builder,
       loss_builder=loss_builder,
       metrics_builder=metrics_builder)
+  test_fn = training_utils.build_unweighted_test_fn(
+      federated_eval_dataset=federated_test_data,
+      model_builder=model_builder,
+      loss_builder=loss_builder,
+      metrics_builder=metrics_builder)
+
 
   logging.info('Training model:')
   logging.info(model_builder().summary())
 
-  training_loop.run(
-      iterative_process=training_process,
-      client_datasets_fn=client_datasets_fn,
-      validation_fn=evaluate_fn,
-      test_fn=evaluate_fn,
-      total_rounds=total_rounds,
-      experiment_name=experiment_name,
-      root_output_dir=root_output_dir,
-      **kwargs)
+  if schedule=='none':
+    client_datasets_fn = training_utils.build_client_datasets_fn(
+      train_dataset=cifar_train,
+      train_clients_per_round=clients_per_round,
+      random_seed=client_datasets_random_seed,
+      min_clients=min_clients,
+      var_q_clients=var_q_clients,
+      f_mult=f_mult,
+      f_intercept=f_intercept)
+    training_loop.run(
+        iterative_process=training_process,
+        client_datasets_fn=client_datasets_fn,
+        validation_fn=evaluate_fn,
+        test_fn=evaluate_fn,
+        total_rounds=total_rounds,
+        experiment_name=experiment_name,
+        root_output_dir=root_output_dir,
+        **kwargs)
+  else:
+    client_datasets_fn = training_utils.build_availability_client_datasets_fn(
+      train_dataset = cifar_train, 
+      train_clients_per_round = clients_per_round, 
+      random_seed=client_datasets_random_seed,
+      beta = beta,
+      min_clients=min_clients,
+      var_q_clients=var_q_clients,
+      f_mult=f_mult,
+      f_intercept=f_intercept,
+      )
+    training_loop_importance.run(
+        iterative_process=training_process,
+        client_datasets_fn=client_datasets_fn,
+        validation_fn=evaluate_fn,
+        test_fn=test_fn,
+        total_rounds=total_rounds,
+        experiment_name=experiment_name,
+        root_output_dir=root_output_dir,
+        **kwargs)
+
