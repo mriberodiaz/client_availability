@@ -282,6 +282,12 @@ def run(iterative_process: tff.templates.IterativeProcess,
       train_eval_metrics = train_eval_fn(state.model)
       train_eval_metrics['evaluate_secs'] = time.time() - train_eval_start
       metrics['train_eval'] = train_eval_metrics
+    if test_fn and round_num % rounds_per_train_eval == 0:
+      test_start_time = time.time()
+      test_metrics = test_fn(state.model)
+      test_metrics['evaluate_secs'] = time.time() - test_start_time
+      metrics['test'] = test_metrics
+
 
     _write_metrics(metrics_mngr, summary_writer, metrics, round_num)
     round_num += 1
