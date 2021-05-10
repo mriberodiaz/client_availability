@@ -188,7 +188,7 @@ def build_sample_fn(
     num_clients,
     replace: bool = False,
     use_p: bool= False,
-    p_vector:Union[Sequence[Any], int]
+    p_vector:Union[Sequence[Any], int],
     random_seed: Optional[int] = None) -> Callable[[int], np.ndarray]:
   """Builds the function for sampling from the input iterator at each round.
 
