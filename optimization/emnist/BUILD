@@ -22,6 +22,7 @@ py_library(
     deps = [
         "//utils:training_loop",
 	"//utils:training_loop_importance",
+	"//utils:training_loop_loss",
         "//utils:training_utils",
         "//utils/datasets:emnist_dataset",
         "//utils/models:emnist_models",
