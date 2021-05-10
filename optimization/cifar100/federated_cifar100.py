@@ -44,6 +44,11 @@ def run_federated(
     experiment_name: Optional[str] = 'federated_cifar100',
     root_output_dir: Optional[str] = '/tmp/fed_opt',
     max_eval_batches: Optional[int] = None,
+    sine_wave:Optional[bool] = True,
+    var_q_clients: Optional[float] = 0.25,
+    f_mult: Optional[float] = 0.4,
+    f_intercept: Optional[float] = 0.5,
+    min_clients:Optional[int] = 15,
     **kwargs):
   """Runs an iterative process on the CIFAR-100 classification task.
 
@@ -145,10 +150,10 @@ def run_federated(
       train_dataset=cifar_train,
       train_clients_per_round=clients_per_round,
       random_seed=client_datasets_random_seed,
-      min_clients=15,
-      var_q_clients=0.25,
-      f_mult=0.2,
-      f_intercept=0.8)
+      min_clients=min_clients,
+      var_q_clients=var_q_clients,
+      f_mult=f_mult,
+      f_intercept=f_intercept)
 
     training_loop.run(
         iterative_process=training_process,
@@ -165,10 +170,10 @@ def run_federated(
       train_clients_per_round = clients_per_round, 
       random_seed=client_datasets_random_seed,
       beta = beta,
-      min_clients=15,
-      var_q_clients=0.25,
-      f_mult=0.2,
-      f_intercept=0.8
+      min_clients=min_clients,
+      var_q_clients=var_q_clients,
+      f_mult=f_mult,
+      f_intercept=f_intercept,
       )
     training_loop_importance.run(
         iterative_process=training_process,
