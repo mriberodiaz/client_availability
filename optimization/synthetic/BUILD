@@ -11,6 +11,8 @@ py_library(
     srcs_version = "PY3",
     deps = [
         "//utils:training_loop",
+	"//utils:training_loop_importance",
+	"//utils:training_loop_loss",
         "//utils:training_utils",
         "//utils/datasets:synthetic_dataset",
     ],
