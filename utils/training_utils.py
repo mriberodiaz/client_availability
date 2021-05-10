@@ -125,6 +125,58 @@ def build_evaluate_fn(
 
   return evaluate_fn
 
+def build_unweighted_test_fn(
+    federated_eval_dataset: tf.data.Dataset, model_builder: Callable[[], tf.keras.Model],
+    loss_builder: Callable[[], tf.keras.losses.Loss],
+    metrics_builder: Callable[[], List[tf.keras.metrics.Metric]]
+) -> Callable[[tff.learning.ModelWeights], Dict[str, Any]]:
+  """Builds an evaluation function for a given model and test dataset.
+
+  The evaluation function takes as input a fed_avg_schedule.ServerState, and
+  computes metrics on a keras model with the same weights.
+
+  Args:
+    eval_dataset: A `tf.data.Dataset` object. Dataset elements should either
+      have a mapping structure of format {"x": <features>, "y": <labels>}, or a
+        tuple structure of format (<features>, <labels>).
+    model_builder: A no-arg function that returns a `tf.keras.Model` object.
+    loss_builder: A no-arg function returning a `tf.keras.losses.Loss` object.
+    metrics_builder: A no-arg function that returns a list of
+      `tf.keras.metrics.Metric` objects.
+
+  Returns:
+    A function that take as input a `tff.learning.ModelWeights` and returns
+    a dict of (name, value) pairs for each associated evaluation metric.
+  """
+
+  def compiled_eval_keras_model():
+    model = model_builder()
+    model.compile(
+        loss=loss_builder(),
+        optimizer=tf.keras.optimizers.SGD(),  # Dummy optimizer for evaluation
+        metrics=metrics_builder())
+    return model
+
+
+  def evaluate_fn(reference_model: tff.learning.ModelWeights) -> Dict[str, Any]:
+    """Evaluation function to be used during training."""
+
+    if not isinstance(reference_model, tff.learning.ModelWeights):
+      raise TypeError('The reference model used for evaluation must be a'
+                      '`tff.learning.ModelWeights` instance.')
+
+    keras_model = compiled_eval_keras_model()
+    reference_model.assign_weights_to(keras_model)
+    logging.info('Evaluating the current model')
+    results = {}
+    for client_id in federated_eval_dataset.client_ids:
+      client_data = federated_eval_dataset.create_tf_dataset_for_client(client_id)
+      eval_tuple_dataset = convert_to_tuple_dataset(client_data)
+      eval_metrics = keras_model.evaluate(eval_tuple_dataset, verbose=0)
+      results[client_id] = dict(zip(keras_model.metrics_names, eval_metrics))
+    return results
+  return evaluate_fn
+
 
 def build_sample_fn(
     a: Union[Sequence[Any], int],
