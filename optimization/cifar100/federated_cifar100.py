@@ -94,7 +94,7 @@ def run_federated(
 
   crop_shape = (crop_size, crop_size, 3)
 
-  cifar_train, _ = cifar100_dataset.get_federated_cifar100(
+  cifar_train, fed_test_data = cifar100_dataset.get_federated_cifar100(
       client_epochs_per_round=client_epochs_per_round,
       train_batch_size=client_batch_size,
       crop_shape=crop_shape,
@@ -127,6 +127,12 @@ def run_federated(
 
   evaluate_fn = training_utils.build_evaluate_fn(
       eval_dataset=cifar_test,
+      model_builder=model_builder,
+      loss_builder=loss_builder,
+      metrics_builder=metrics_builder)
+
+  test_fn = training_utils.build_unweighted_test_fn(
+      eval_dataset=fed_test_data,
       model_builder=model_builder,
       loss_builder=loss_builder,
       metrics_builder=metrics_builder)
@@ -168,7 +174,7 @@ def run_federated(
         iterative_process=training_process,
         client_datasets_fn=client_datasets_fn,
         validation_fn=evaluate_fn,
-        test_fn=evaluate_fn,
+        test_fn=test_fn,
         total_rounds=total_rounds,
         experiment_name=experiment_name,
         root_output_dir=root_output_dir,
