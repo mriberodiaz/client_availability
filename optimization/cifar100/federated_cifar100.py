@@ -132,7 +132,7 @@ def run_federated(
       metrics_builder=metrics_builder)
 
   test_fn = training_utils.build_unweighted_test_fn(
-      eval_dataset=fed_test_data,
+      federated_eval_dataset=fed_test_data,
       model_builder=model_builder,
       loss_builder=loss_builder,
       metrics_builder=metrics_builder)
@@ -154,7 +154,7 @@ def run_federated(
         iterative_process=training_process,
         client_datasets_fn=client_datasets_fn,
         validation_fn=evaluate_fn,
-        test_fn=evaluate_fn,
+        test_fn=test_fn,
         total_rounds=total_rounds,
         experiment_name=experiment_name,
         root_output_dir=root_output_dir,
