@@ -23,6 +23,8 @@ py_library(
     deps = [
         "//optimization/shared:keras_metrics",
         "//utils:training_loop",
+	"//utils:training_loop_importance",
+	"//utils:training_loop_loss",
         "//utils:training_utils",
         "//utils/datasets:shakespeare_dataset",
         "//utils/models:shakespeare_models",
