@@ -38,6 +38,7 @@ from optimization.emnist_ae import federated_emnist_ae
 from optimization.shakespeare import federated_shakespeare
 from optimization.shared import importance_gradient_schedule as importance_schedule
 from optimization.shared import fed_avg_schedule as fed_avg
+from optimization.shared import fed_avg_schedule_loss_selection as fed_loss
 from optimization.shared import optimizer_utils
 from optimization.shared import importance_aggregation_factory
 from optimization.stackoverflow import federated_stackoverflow
@@ -48,7 +49,7 @@ _SUPPORTED_TASKS = [
     'cifar100', 'emnist_cr', 'emnist_ae', 'shakespeare', 'stackoverflow_nwp',
     'stackoverflow_lr', 'synthetic'
 ]
-_SUPPORTED_SCHEDULES = ['importance', 'none']
+_SUPPORTED_SCHEDULES = ['importance', 'none', 'loss']
 
 with utils_impl.record_hparam_flags() as optimizer_flags:
   # Defining optimizer flags
@@ -103,6 +104,8 @@ with utils_impl.record_hparam_flags() as schedule_flags:
   flags.DEFINE_float('var_q_clients', 0.25, 'Variance of client availability')
   flags.DEFINE_boolean('sine_wave', True, 'Whether to use a sine wave to model client availability')
   flags.DEFINE_integer('min_clients', 15, 'Expected minimum number of clients at each round')
+  flags.DEFINE_integer('loss_pool_size', 30, 'Number of effective clients participating at each round')
+
 
 with utils_impl.record_hparam_flags() as cifar100_flags:
   # CIFAR-100 flags
@@ -243,6 +246,8 @@ def main(argv):
 
   if FLAGS.schedule=='importance':
     fed_avg_schedule = importance_schedule
+  elif FLAGS.schedule=='loss':
+    fed_avg_schedule = fed_loss
   else: 
     fed_avg_schedule = fed_avg
 
@@ -266,6 +271,33 @@ def main(argv):
           server_optimizer_fn=server_optimizer_fn,
           server_lr=server_lr_schedule,
           aggregation_process = importance_aggregation_process)
+  elif FLAGS.schedule=='loss':
+    def iterative_process_builder(
+      model_fn: Callable[[], tff.learning.Model],
+      client_weight_fn: Optional[Callable[[Any], tf.Tensor]] = None,
+      ) -> tff.templates.IterativeProcess:
+      """Creates an iterative process using a given TFF `model_fn`.
+
+      Args:
+        model_fn: A no-arg function returning a `tff.learning.Model`.
+        client_weight_fn: Optional function that takes the output of
+          `model.report_local_outputs` and returns a tensor providing the weight
+          in the federated average of model deltas. If not provided, the default
+          is the total number of examples processed on device.
+
+      Returns:
+        A `tff.templates.IterativeProcess`.
+      """
+      return fed_avg_schedule.build_fed_avg_process(
+          total_clients = FLAGS.clients_per_round,
+          effective_num_clients = FLAGS.clients_per_round,
+          model_fn=model_fn,
+          client_optimizer_fn=client_optimizer_fn,
+          client_lr=client_lr_schedule,
+          server_optimizer_fn=server_optimizer_fn,
+          server_lr=server_lr_schedule,
+          client_weight_fn=client_weight_fn, 
+          aggregation_process = None)
   else:
     def iterative_process_builder(
         model_fn: Callable[[], tff.learning.Model],
