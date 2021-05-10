@@ -104,6 +104,17 @@ py_library(
     ],
 )
 
+py_library(
+    name = "training_loop_loss",
+    srcs = ["training_loop_loss.py"],
+    srcs_version = "PY3",
+    deps = [
+        ":checkpoint_manager",
+        ":metrics_manager",
+        ":utils_impl",
+    ],
+)
+
 py_test(
     name = "training_loop_test",
     size = "large",
