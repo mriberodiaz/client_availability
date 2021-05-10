@@ -10,6 +10,11 @@ py_library(
     srcs_version = "PY3",
 )
 py_library(
+    name = "fed_avg_schedule_loss_selection",
+    srcs = ["fed_avg_schedule_loss_selection.py"],
+    srcs_version = "PY3",
+)
+py_library(
     name = "importance_gradient_schedule",
     srcs = ["importance_gradient_schedule.py"],
     srcs_version = "PY3",
