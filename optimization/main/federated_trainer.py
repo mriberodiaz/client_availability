@@ -98,11 +98,17 @@ with utils_impl.record_hparam_flags() as schedule_flags:
   flags.DEFINE_enum('schedule', None, _SUPPORTED_SCHEDULES,
                     'Which aggregation process.')
   flags.DEFINE_float('beta', 0.01, 'parameter for exponential averaging in importance sampling')
+  flags.DEFINE_float('f_mult', 0.4, 'amplitude of sine wave')
+  flags.DEFINE_float('f_intercept', 0.5, 'intercept of sine wave')
+  flags.DEFINE_float('var_q_clients', 0.25, 'Variance of client availability')
+  flags.DEFINE_boolean('sine_wave', True, 'Whether to use a sine wave to model client availability')
+  flags.DEFINE_integer('min_clients', 15, 'Expected minimum number of clients at each round')
 
 with utils_impl.record_hparam_flags() as cifar100_flags:
   # CIFAR-100 flags
   flags.DEFINE_integer('cifar100_crop_size', 24, 'The height and width of '
                        'images after preprocessing.')
+
 with utils_impl.record_hparam_flags() as synthetic_flags:
   # CIFAR-100 flags
   flags.DEFINE_float('alpha', 0.5, 'heterogeneity of models.')
