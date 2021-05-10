@@ -55,6 +55,7 @@ py_binary(
         "//optimization/shakespeare:federated_shakespeare",
         "//optimization/shared:fed_avg_schedule",
  	"//optimization/shared:importance_gradient_schedule",
+	"//optimization/shared:fed_avg_schedule_loss_selection",
         "//optimization/shared:optimizer_utils",
         "//optimization/stackoverflow:federated_stackoverflow",
         "//optimization/stackoverflow_lr:federated_stackoverflow_lr",
