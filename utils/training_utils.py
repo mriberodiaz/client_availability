@@ -240,7 +240,6 @@ def build_sample_fn(
       random_state = np.random.RandomState(get_pseudo_random_int(round_num))
     else:
       random_state = np.random.RandomState()
-    logging.info(f'Num available_clients: {len(available_clients)}  -  size: {size}')
     return random_state.choice(available_clients, size=size, replace=replace, p=probs_data),availability
 
   return functools.partial(sample, random_seed=random_seed)
@@ -294,8 +293,7 @@ def build_client_datasets_fn(
     dataset = train_dataset.create_tf_dataset_for_client(client_id)
     p_vector.append(len(list(dataset)))
   p_vector = np.array(p_vector)/sum(p_vector)
-  
-  logging.info(f'Num train clients: {train_clients_per_round}')
+
   sample_clients_fn = build_sample_fn(
       train_dataset.client_ids,
       size=train_clients_per_round,
@@ -313,7 +311,6 @@ def build_client_datasets_fn(
         train_dataset.create_tf_dataset_for_client(client)
         for client in sampled_clients
     ]
-    logging.info(f'Len dataset: {len(datasets)}  -  sampled clients: {len(sampled_clients)}')
     return datasets, availability, sampled_clients
 
   return client_datasets
