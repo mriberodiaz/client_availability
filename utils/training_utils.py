@@ -170,13 +170,20 @@ def build_unweighted_test_fn(
     keras_model = compiled_eval_keras_model()
     reference_model.assign_weights_to(keras_model)
     logging.info('Evaluating the current model')
-    results = {}
+    results = {name:[] for name in keras_model.metrics_names}
     for client_id in client_ids:
       client_data = federated_eval_dataset.create_tf_dataset_for_client(client_id)
       eval_tuple_dataset = convert_to_tuple_dataset(client_data)
       eval_metrics = keras_model.evaluate(eval_tuple_dataset, verbose=0)
-      results[client_id] = dict(zip(keras_model.metrics_names, eval_metrics))
-    return results
+      for name in keras_model.metrics_names:  
+        results[name].append(eval_metrics[name])
+    statistics_dict = {}
+    for name in keras_model.metrics_names:
+      statistics_dict[f'avg_{name}'] = np.mean(results[name])
+      statistics_dict[f'min_{name}'] = np.min(results[name])
+      statistics_dict[f'max_{name}'] = np.max(results[name])
+      statistics_dict[f'std_{name}']= np.std(results[name])
+    return statistics_dict
   return evaluate_fn
 
 
