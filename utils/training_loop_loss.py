@@ -226,6 +226,7 @@ def run(iterative_process: tff.templates.IterativeProcess,
     # determined (and possibly fixed).
     try:
       with profiler(round_num):
+        logging.info(f'Total clients: {total_clients},  -- train data length: {len(federated_train_data)}  - Roundids:{len(ROUND_IDS)}')
         state, round_metrics = iterative_process.next(state,
                                                       federated_train_data, ROUND_IDS)
     except (tf.errors.FailedPreconditionError, tf.errors.NotFoundError,
