@@ -293,7 +293,7 @@ def build_client_datasets_fn(
     dataset = train_dataset.create_tf_dataset_for_client(client_id)
     p_vector.append(len(list(dataset)))
   p_vector = np.array(p_vector)/sum(p_vector)
-
+  logging.info(f'Num train clients: {train_clients_per_round}')
   sample_clients_fn = build_sample_fn(
       train_dataset.client_ids,
       size=train_clients_per_round,
