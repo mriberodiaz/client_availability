@@ -240,7 +240,7 @@ def build_sample_fn(
       random_state = np.random.RandomState(get_pseudo_random_int(round_num))
     else:
       random_state = np.random.RandomState()
-    return random_state.choice(available_clients, size=size, replace=replace, p=probs),availability
+    return random_state.choice(available_clients, size=size, replace=replace, p=probs_data),availability
 
   return functools.partial(sample, random_seed=random_seed)
 
