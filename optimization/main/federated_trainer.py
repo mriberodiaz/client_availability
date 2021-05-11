@@ -289,7 +289,7 @@ def main(argv):
         A `tff.templates.IterativeProcess`.
       """
       return fed_avg_schedule.build_fed_avg_process(
-          total_clients = FLAGS.clients_per_round,
+          total_clients = FLAGS.loss_pool_size,
           effective_num_clients = FLAGS.clients_per_round,
           model_fn=model_fn,
           client_optimizer_fn=client_optimizer_fn,
