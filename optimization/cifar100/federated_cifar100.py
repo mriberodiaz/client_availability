@@ -168,7 +168,7 @@ def run_federated(
         **kwargs)
   elif schedule=='loss':
     if 'loss_pool_size' in kwargs['hparam_dict'] and kwargs['hparam_dict']['loss_pool_size'] is not None:
-      loss_pool_size = kwargs['loss_pool_size']
+      loss_pool_size = kwargs['hparam_dict']['loss_pool_size']
       logging.info( f'Loss pool size: {loss_pool_size}' )
       client_datasets_fn = training_utils.build_client_datasets_fn(
           train_dataset=cifar_train,
