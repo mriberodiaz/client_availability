@@ -45,7 +45,6 @@ def run_federated(
     experiment_name: Optional[str] = 'federated_cifar100',
     root_output_dir: Optional[str] = '/tmp/fed_opt',
     max_eval_batches: Optional[int] = None,
-    loss_pool_size: Optional[int] = None,
     sine_wave:Optional[bool] = True,
     var_q_clients: Optional[float] = 0.25,
     f_mult: Optional[float] = 0.4,
@@ -177,16 +176,20 @@ def run_federated(
         f_mult=f_mult,
         f_intercept=f_intercept, 
         use_p=True)
-    training_loop_loss.run(
-        iterative_process=training_process,
-        client_datasets_fn=client_datasets_fn,
-        validation_fn=evaluate_fn,
-        test_fn=test_fn,
-        total_rounds=total_rounds,
-        total_clients = loss_pool_size,
-        experiment_name=experiment_name,
-        root_output_dir=root_output_dir,
-        **kwargs)
+    if 'loss_pool_size' in kwargs and kwargs['loss_pool_size'] is not None:
+      logging.info(f'Loss pool size: {kwargs['loss_pool_size']}')
+      training_loop_loss.run(
+          iterative_process=training_process,
+          client_datasets_fn=client_datasets_fn,
+          validation_fn=evaluate_fn,
+          test_fn=test_fn,
+          total_rounds=total_rounds,
+          total_clients = kwargs['loss_pool_size'],
+          experiment_name=experiment_name,
+          root_output_dir=root_output_dir,
+          **kwargs)
+    else:
+      raise ValueError('Loss pool size not specified')
   else:
     client_datasets_fn = training_utils.build_availability_client_datasets_fn(
       train_dataset = cifar_train, 
