@@ -167,24 +167,25 @@ def run_federated(
         root_output_dir=root_output_dir,
         **kwargs)
   elif schedule=='loss':
-    client_datasets_fn = training_utils.build_client_datasets_fn(
-        train_dataset=cifar_train,
-        train_clients_per_round=loss_pool_size,
-        random_seed=client_datasets_random_seed,
-        min_clients=min_clients,
-        var_q_clients=var_q_clients,
-        f_mult=f_mult,
-        f_intercept=f_intercept, 
-        use_p=True)
     if 'loss_pool_size' in kwargs and kwargs['loss_pool_size'] is not None:
-      logging.info(f'Loss pool size: {kwargs['loss_pool_size']}')
+      loss_pool_size = kwargs['loss_pool_size']
+      logging.info( f'Loss pool size: {loss_pool_size}' )
+      client_datasets_fn = training_utils.build_client_datasets_fn(
+          train_dataset=cifar_train,
+          train_clients_per_round=loss_pool_size,
+          random_seed=client_datasets_random_seed,
+          min_clients=min_clients,
+          var_q_clients=var_q_clients,
+          f_mult=f_mult,
+          f_intercept=f_intercept, 
+          use_p=True)
       training_loop_loss.run(
           iterative_process=training_process,
           client_datasets_fn=client_datasets_fn,
           validation_fn=evaluate_fn,
           test_fn=test_fn,
           total_rounds=total_rounds,
-          total_clients = kwargs['loss_pool_size'],
+          total_clients = loss_pool_size,
           experiment_name=experiment_name,
           root_output_dir=root_output_dir,
           **kwargs)
