@@ -65,7 +65,6 @@ def run_federated(
     experiment_name: Optional[str] = 'federated_shakespeare',
     root_output_dir: Optional[str] = '/tmp/fed_opt',
     max_eval_batches: Optional[int] = None,
-    loss_pool_size: Optional[int] = None,
     sine_wave:Optional[bool] = True,
     var_q_clients: Optional[float] = 0.25,
     f_mult: Optional[float] = 0.4,
@@ -194,25 +193,31 @@ def run_federated(
         root_output_dir=root_output_dir,
         **kwargs)
   elif schedule=='loss':
-    client_datasets_fn = training_utils.build_client_datasets_fn(
-        train_dataset=train_clientdata,
-        train_clients_per_round=loss_pool_size,
-        random_seed=client_datasets_random_seed,
-        min_clients=min_clients,
-        var_q_clients=var_q_clients,
-        f_mult=f_mult,
-        f_intercept=f_intercept, 
-        use_p=True)
-    training_loop_loss.run(
-        iterative_process=training_process,
-        client_datasets_fn=client_datasets_fn,
-        validation_fn=evaluate_fn,
-        test_fn=test_fn,
-        total_rounds=total_rounds,
-        total_clients = loss_pool_size,
-        experiment_name=experiment_name,
-        root_output_dir=root_output_dir,
-        **kwargs)
+    if 'loss_pool_size' in kwargs['hparam_dict'] and kwargs['hparam_dict']['loss_pool_size'] is not None:
+      loss_pool_size = kwargs['hparam_dict']['loss_pool_size']
+      logging.info( f'Loss pool size: {loss_pool_size}' )
+
+      client_datasets_fn = training_utils.build_client_datasets_fn(
+          train_dataset=train_clientdata,
+          train_clients_per_round=loss_pool_size,
+          random_seed=client_datasets_random_seed,
+          min_clients=min_clients,
+          var_q_clients=var_q_clients,
+          f_mult=f_mult,
+          f_intercept=f_intercept, 
+          use_p=True)
+      training_loop_loss.run(
+          iterative_process=training_process,
+          client_datasets_fn=client_datasets_fn,
+          validation_fn=evaluate_fn,
+          test_fn=test_fn,
+          total_rounds=total_rounds,
+          total_clients = loss_pool_size,
+          experiment_name=experiment_name,
+          root_output_dir=root_output_dir,
+          **kwargs)
+    else:
+      raise ValueError('Loss pool size not specified')
   else:
     client_datasets_fn = training_utils.build_availability_client_datasets_fn(
       train_dataset = train_clientdata, 
