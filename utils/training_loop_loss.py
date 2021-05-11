@@ -235,7 +235,7 @@ def run(iterative_process: tff.templates.IterativeProcess,
                       type(e), round_num, e)
       continue  # restart the loop without incrementing the round number
 
-    train_metrics['training_secs'] = time.time() - 
+    train_metrics['training_secs'] = time.time() - training_start_time
     train_metrics['num_available'] = sum(availability).numpy()
     train_metrics['model_delta_l2_norm'] = _compute_numpy_l2_difference(
         state.model, prev_model)
