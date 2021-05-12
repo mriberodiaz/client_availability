@@ -176,8 +176,8 @@ def build_unweighted_test_fn(
       client_data = federated_eval_dataset.create_tf_dataset_for_client(client_id)
       eval_tuple_dataset = convert_to_tuple_dataset(client_data)
       eval_metrics = keras_model.evaluate(eval_tuple_dataset, verbose=0)
-      for name in keras_model.metrics_names:  
-        results[name].append(eval_metrics[name])
+      for i,name in enumerate(keras_model.metrics_names):  
+        results[name].append(eval_metrics[i])
     statistics_dict = {}
     for name in keras_model.metrics_names:
       statistics_dict[f'avg_{name}'] = np.mean(results[name])
