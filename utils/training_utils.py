@@ -268,7 +268,8 @@ def build_client_datasets_fn(
     var_q_clients: Optional[float] = 0.25,
     f_mult: Optional[float] = 0.4,
     f_intercept: Optional[float] = 0.5,
-    use_p: Optional[bool] = False) -> Callable[[int], List[tf.data.Dataset]]:
+    use_p: Optional[bool] = False,
+    q_client: Optional[List[float]]=None) -> Callable[[int], List[tf.data.Dataset]]:
   """Builds the function for generating client datasets at each round.
 
   The function samples a number of clients (without replacement within a given
@@ -291,25 +292,26 @@ def build_client_datasets_fn(
   """
   NUM_CLIENTS = len(train_dataset.client_ids)
   times = np.linspace(start=0, stop=2*np.pi, num=24)
+  logging.info(f'Using sine wave:  {sine_wave}')
   if sine_wave:
     f_distribution = np.sin(times)*f_mult+f_intercept # range between 0 - 1
   else:
     f_distribution = np.ones_like(times)
-  created_q = False
-  trials=0
-  logging.info(f'F[17] = {f_distribution[17]}')
+  
+  if q_client is None:
+    created_q = False
+    trials=0
+    while  not created_q and trials<5:
+      logging.info(' creating q')
+      q_client = np.random.lognormal(0., var_q_clients, (NUM_CLIENTS))
+      q_client = q_client/max(q_client)
+      logging.info(f'trial {trials}   -  participating clients: {sum(q_client)*f_distribution[17]}')
+      trials+=1
+      if sum(q_client)*f_distribution[17]>min_clients:
+        created_q=True
+    if trials>=5:
+      raise ValueError('Could not create q! decrease var q!')
 
-
-  while  not created_q and trials<5:
-    logging.info(' creating q')
-    q_client = np.random.lognormal(0., var_q_clients, (NUM_CLIENTS))
-    q_client = q_client/max(q_client)
-    logging.info(f'trial {trials}   -  participating clients: {sum(q_client)*f_distribution[17]}')
-    trials+=1
-    if sum(q_client)*f_distribution[17]>min_clients:
-      created_q=True
-  if trials>=5:
-    raise ValueError('Could not create q! decrease var q!')
   p_vector = [ ]
   for client_id in train_dataset.client_ids:
     dataset = train_dataset.create_tf_dataset_for_client(client_id)
@@ -370,6 +372,7 @@ def build_availability_client_datasets_fn(
     sine_wave:Optional[bool] = True,
     f_mult: Optional[float] = 0.4,
     f_intercept: Optional[float] = 0.5,
+    q_client: Optional[List[float]]=None,
 ) -> Callable[[int], List[tf.data.Dataset]]:
   """Builds the function for generating client datasets at each round.
 
@@ -399,14 +402,20 @@ def build_availability_client_datasets_fn(
     f_distribution = np.sin(times)*f_mult+f_intercept # range between 0 - 1
   else:
     f_distribution = np.ones_like(times)
-  created_q = False
-
-  while  not created_q:
-    logging.info(' creating q')
-    q_client = np.random.lognormal(0., var_q_clients, (NUM_CLIENTS))
-    q_client = q_client/max(q_client)
-    if sum(q_client)*f_distribution[17]>min_clients:
-      created_q=True
+  
+  if q_client is None:
+    created_q = False
+    trials=0
+    while  not created_q and trials<5:
+      logging.info(' creating q')
+      q_client = np.random.lognormal(0., var_q_clients, (NUM_CLIENTS))
+      q_client = q_client/max(q_client)
+      logging.info(f'trial {trials}   -  participating clients: {sum(q_client)*f_distribution[17]}')
+      trials+=1
+      if sum(q_client)*f_distribution[17]>min_clients:
+        created_q=True
+    if trials>=5:
+      raise ValueError('Could not create q! decrease var q!')
 
 
   p_vector = [ ]
