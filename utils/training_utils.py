@@ -289,13 +289,20 @@ def build_client_datasets_fn(
   else:
     f_distribution = np.ones_like(times)
   created_q = False
+  trials=0
+  logging.info(f'F[17] = {f_distribution[17]}')
 
-  while  not created_q:
+
+  while  not created_q and trials<5:
     logging.info(' creating q')
     q_client = np.random.lognormal(0., var_q_clients, (NUM_CLIENTS))
     q_client = q_client/max(q_client)
+    logging.info(f'trial {trials}   -  participating clients: {sum(q_client)*f_distribution[17]}')
+    trials+=1
     if sum(q_client)*f_distribution[17]>min_clients:
       created_q=True
+  if trials>=5:
+    raise ValueError('Could not create q! decrease var q!')
   p_vector = [ ]
   for client_id in train_dataset.client_ids:
     dataset = train_dataset.create_tf_dataset_for_client(client_id)
