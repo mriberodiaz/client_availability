@@ -223,7 +223,7 @@ def run(iterative_process: tff.templates.IterativeProcess,
     else:
       if r_vec is None:
         r_vec_filename = os.path.join(results_r_vec_dir, f'r_vec{round_num-1}.npy')
-        r_vec_numpy = np.load(r_vec_filename, allow_pickle=False)
+        r_vec_numpy = np.load(r_vec_filename, allow_pickle=True)
         r_vec = tf.Variable(r_vec_numpy, dtype = tf.float32)
       federated_train_data, federated_weights,r_vec,idx_ids,avail = client_datasets_fn(round_num, r_vec)
     train_metrics = {
