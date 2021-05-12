@@ -44,11 +44,6 @@ def run_federated(
     experiment_name: Optional[str] = 'federated_emnist_cr',
     root_output_dir: Optional[str] = '/tmp/fed_opt',
     max_eval_batches: Optional[int] = None,
-    # sine_wave:Optional[bool] = True,
-    # var_q_clients: Optional[float] = 0.25,
-    # f_mult: Optional[float] = 0.4,
-    # f_intercept: Optional[float] = 0.5,
-    # min_clients: Optional[int] = 15,
     **kwargs):
   """Runs an iterative process on the EMNIST character recognition task.
 
@@ -148,6 +143,13 @@ def run_federated(
 
   logging.info('Training model:')
   logging.info(model_builder().summary())
+
+  try:
+    q_client = np.load(f'/home/monica/AVAIL_VECTORS/q_client_{kwargs['hparam_dict']['var_q_clients']}_emnist.npy')
+  except:
+    logging.info('Could not load q_client - initializing random availabilities')
+    q_client=None
+
   if schedule =='none':
     client_datasets_fn = training_utils.build_client_datasets_fn(
         train_dataset=emnist_train,
@@ -158,7 +160,8 @@ def run_federated(
         f_mult=kwargs['hparam_dict']['f_mult'],
         f_intercept=kwargs['hparam_dict']['f_intercept'], 
         sine_wave = kwargs['hparam_dict']['sine_wave'], 
-        use_p=True)
+        use_p=True,
+        q_client=q_client)
     training_loop.run(
         iterative_process=training_process,
         client_datasets_fn=client_datasets_fn,
@@ -181,7 +184,8 @@ def run_federated(
           f_mult=kwargs['hparam_dict']['f_mult'],
           f_intercept=kwargs['hparam_dict']['f_intercept'], 
           sine_wave = kwargs['hparam_dict']['sine_wave'], 
-          use_p=True)
+          use_p=True,
+          q_client=q_client)
       training_loop_loss.run(
           iterative_process=training_process,
           client_datasets_fn=client_datasets_fn,
@@ -204,6 +208,7 @@ def run_federated(
       f_mult=kwargs['hparam_dict']['f_mult'],
       f_intercept=kwargs['hparam_dict']['f_intercept'], 
       sine_wave = kwargs['hparam_dict']['sine_wave'], 
+      q_client=q_client,
       )
     training_loop_importance.run(
         iterative_process=training_process,
