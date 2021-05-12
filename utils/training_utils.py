@@ -171,7 +171,9 @@ def build_unweighted_test_fn(
     reference_model.assign_weights_to(keras_model)
     logging.info('Evaluating the current model')
     results = {name:[] for name in keras_model.metrics_names}
+    logging.info(f'Keras names: {keras_model.metrics_names}')
     results['loss']=[]
+    logging.info(f'results names: {results.keys()}')
     for client_id in client_ids:
       client_data = federated_eval_dataset.create_tf_dataset_for_client(client_id)
       eval_tuple_dataset = convert_to_tuple_dataset(client_data)
