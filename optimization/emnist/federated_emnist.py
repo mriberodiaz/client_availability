@@ -44,11 +44,11 @@ def run_federated(
     experiment_name: Optional[str] = 'federated_emnist_cr',
     root_output_dir: Optional[str] = '/tmp/fed_opt',
     max_eval_batches: Optional[int] = None,
-    sine_wave:Optional[bool] = True,
-    var_q_clients: Optional[float] = 0.25,
-    f_mult: Optional[float] = 0.4,
-    f_intercept: Optional[float] = 0.5,
-    min_clients: Optional[int] = 15,
+    # sine_wave:Optional[bool] = True,
+    # var_q_clients: Optional[float] = 0.25,
+    # f_mult: Optional[float] = 0.4,
+    # f_intercept: Optional[float] = 0.5,
+    # min_clients: Optional[int] = 15,
     **kwargs):
   """Runs an iterative process on the EMNIST character recognition task.
 
@@ -153,10 +153,11 @@ def run_federated(
         train_dataset=emnist_train,
         train_clients_per_round=clients_per_round,
         random_seed=client_datasets_random_seed,
-        min_clients=min_clients,
-        var_q_clients=var_q_clients,
-        f_mult=f_mult,
-        f_intercept=f_intercept, 
+        min_clients=kwargs['hparam_dict']['min_clients'],
+        var_q_clients=kwargs['hparam_dict']['var_q_clients'],
+        f_mult=kwargs['hparam_dict']['f_mult'],
+        f_intercept=kwargs['hparam_dict']['f_intercept'], 
+        sine_wave = kwargs['hparam_dict']['sine_wave'], 
         use_p=True)
     training_loop.run(
         iterative_process=training_process,
@@ -175,10 +176,11 @@ def run_federated(
           train_dataset=emnist_train,
           train_clients_per_round=loss_pool_size,
           random_seed=client_datasets_random_seed,
-          min_clients=min_clients,
-          var_q_clients=var_q_clients,
-          f_mult=f_mult,
-          f_intercept=f_intercept, 
+          min_clients=kwargs['hparam_dict']['min_clients'],
+          var_q_clients=kwargs['hparam_dict']['var_q_clients'],
+          f_mult=kwargs['hparam_dict']['f_mult'],
+          f_intercept=kwargs['hparam_dict']['f_intercept'], 
+          sine_wave = kwargs['hparam_dict']['sine_wave'], 
           use_p=True)
       training_loop_loss.run(
           iterative_process=training_process,
@@ -197,10 +199,12 @@ def run_federated(
       train_dataset = emnist_train, 
       train_clients_per_round = clients_per_round, 
       beta = beta,
-      min_clients=min_clients,
-      var_q_clients=var_q_clients,
-      f_mult=f_mult,
-      f_intercept=f_intercept)
+      min_clients=kwargs['hparam_dict']['min_clients'],
+      var_q_clients=kwargs['hparam_dict']['var_q_clients'],
+      f_mult=kwargs['hparam_dict']['f_mult'],
+      f_intercept=kwargs['hparam_dict']['f_intercept'], 
+      sine_wave = kwargs['hparam_dict']['sine_wave'], 
+      )
     training_loop_importance.run(
         iterative_process=training_process,
         client_datasets_fn=client_datasets_fn,
