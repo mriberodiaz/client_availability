@@ -182,7 +182,7 @@ def run_federated(
         iterative_process=training_process,
         client_datasets_fn=client_datasets_fn,
         validation_fn=evaluate_fn,
-        test_fn=evaluate_fn,
+        test_fn=test_fn,
         total_rounds=total_rounds,
         experiment_name=experiment_name,
         root_output_dir=root_output_dir,
