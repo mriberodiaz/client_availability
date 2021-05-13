@@ -19,6 +19,7 @@ from typing import Callable, Optional
 from absl import logging
 import tensorflow as tf
 import tensorflow_federated as tff
+import numpy as np
 
 from utils import training_loop
 from utils import training_loop_importance
