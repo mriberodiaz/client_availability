@@ -229,7 +229,7 @@ def run(iterative_process: tff.templates.IterativeProcess,
     train_metrics = {
         'prepare_datasets_secs': time.time() - data_prep_start_time
     }
-    np.save( os.path.join(results_r_vec_dir, f'r_vec{round_num}.npy'), r_vec.numpy)
+    np.save( os.path.join(results_r_vec_dir, f'r_vec{round_num}.npy'), r_vec.numpy())
     training_start_time = time.time()
     prev_model = state.model
     # TODO(b/145604851): This try/except is used to circumvent ambiguous TF
