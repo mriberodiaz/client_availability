@@ -152,6 +152,7 @@ def run_federated(
   logging.info(model_builder().summary())
   try:
     var = kwargs['hparam_dict']['var_q_clients']
+    print(f'Variance: {var}')
     q_client = np.load(f'/home/monica/AVAIL_VECTORS/q_client_{var}_synthetic.npy')
   except:
     logging.info('Could not load q_client - initializing random availabilities')
