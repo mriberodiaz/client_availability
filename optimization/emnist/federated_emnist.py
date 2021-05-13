@@ -17,6 +17,7 @@ import functools
 from typing import Callable, Optional
 
 from absl import logging
+import numpy as np
 import tensorflow as tf
 import tensorflow_federated as tff
 
