@@ -293,31 +293,37 @@ def build_client_datasets_fn(
   NUM_CLIENTS = len(train_dataset.client_ids)
   times = np.linspace(start=0, stop=2*np.pi, num=24)
   logging.info(f'Using sine wave:  {sine_wave}')
-  if sine_wave:
-    f_distribution = np.sin(times)*f_mult+f_intercept # range between 0 - 1
-  else:
-    f_distribution = np.ones_like(times)
-  
-  if q_client is None:
-    raise ValueError(' q is None! ')
-    # created_q = False
-    # trials=0
-    # while  not created_q and trials<5:
-    #   logging.info(' creating q')
-    #   q_client = np.random.lognormal(0., var_q_clients, (NUM_CLIENTS))
-    #   q_client = q_client/max(q_client)
-    #   logging.info(f'trial {trials}   -  participating clients: {sum(q_client)*f_distribution[17]}')
-    #   trials+=1
-    #   if sum(q_client)*f_distribution[17]>min_clients:
-    #     created_q=True
-    # if trials>=5:
-    #   raise ValueError('Could not create q! decrease var q!')
 
   p_vector = [ ]
   for client_id in train_dataset.client_ids:
     dataset = train_dataset.create_tf_dataset_for_client(client_id)
     p_vector.append(len(list(dataset)))
   p_vector = np.array(p_vector)/sum(p_vector)
+
+
+  if sine_wave:
+    f_distribution = np.sin(times)*f_mult+f_intercept # range between 0 - 1
+  else:
+    f_distribution = np.ones_like(times)
+  
+  if q_client is None:
+    logging.info(' Created q inverse to dataset size ')
+    q_client = 1/p_vector
+    q_client=q_client/max(q_client)
+    # raise ValueError(' q is None! ')
+    # created_q = False
+    # trials=0
+    # while  not created_q and trials<5:
+    #   logging.info(' creating q')
+    #   q_client = np.random.lognormal(0., var_q_clients, (NUM_CLIENTS))
+    #   q_client = q_client/max(q_client)
+    #   logging.info(f'trial {trials}   -  lognormal Variance: {var_q_clients} - participating clients in min round: {sum(q_client)*f_distribution[17]}')
+    #   trials+=1
+    #   if sum(q_client)*f_distribution[17]>min_clients:
+    #     created_q=True
+    # if trials>=5:
+    #   raise ValueError('Could not create q! decrease var q!')
+
 
   sample_clients_fn = build_sample_fn(
       train_dataset.client_ids,
@@ -404,8 +410,18 @@ def build_availability_client_datasets_fn(
   else:
     f_distribution = np.ones_like(times)
   
+  p_vector = [ ]
+  for client_id in train_dataset.client_ids:
+    dataset = train_dataset.create_tf_dataset_for_client(client_id)
+    p_vector.append(len(list(dataset)))
+  p_vector = np.array(p_vector)/sum(p_vector)
+
+  p_vector = tf.constant(p_vector, dtype = tf.float32)  
   if q_client is None:
-    raise ValueError(' q is None! ')
+    logging.info(' Created q inverse to dataset size ')
+    q_client = 1/p_vector
+    q_client=q_client/max(q_client)
+    # raise ValueError(' q is None! ')
     # created_q = False
     # trials=0
     # while  not created_q and trials<5:
@@ -418,15 +434,6 @@ def build_availability_client_datasets_fn(
     #     created_q=True
     # if trials>=5:
     #   raise ValueError('Could not create q! decrease var q!')
-
-
-  p_vector = [ ]
-  for client_id in train_dataset.client_ids:
-    dataset = train_dataset.create_tf_dataset_for_client(client_id)
-    p_vector.append(len(list(dataset)))
-  p_vector = np.array(p_vector)/sum(p_vector)
-
-  p_vector = tf.constant(p_vector, dtype = tf.float32)
 
   def client_datasets(round_num,r_vector=None):
     if r_vector is None:
