@@ -156,7 +156,8 @@ def run_federated(
   print(f'Variance: {var}')
   q_client = np.load(f'/home/monica/AVAIL_VECTORS/q_client_{var}_synthetic.npy')
   if q_client is None:
-    raise ValueError('Q is none')
+    logging.info('Could not load q_client - initializing random availabilities')
+    q_client=None
   #except:
     #logging.info('Could not load q_client - initializing random availabilities')
     #q_client=None
