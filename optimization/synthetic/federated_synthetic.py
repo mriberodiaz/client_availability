@@ -37,7 +37,7 @@ def create_logistic_regression_model():
       tf.keras.layers.Dense(
         10, 
         input_shape = (60,), 
-        ),
+        activation=tf.nn.softmax),
       ])
   return model
 
