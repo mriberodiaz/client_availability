@@ -155,16 +155,16 @@ def run_federated(
 
   logging.info('Training model:')
   logging.info(model_builder().summary())
-  #try:
-  var = kwargs['hparam_dict']['var_q_clients']
-  print(f'Variance: {var}')
-  q_client = np.load(f'/home/monica/AVAIL_VECTORS/q_client_{var}_synthetic.npy')
-  if q_client is None:
-    logging.info('Could not load q_client - initializing random availabilities')
-    q_client=None
-  #except:
+  try:
+    var = kwargs['hparam_dict']['var_q_clients']
+    print(f'Variance: {var}')
+    q_client = np.load(f'/home/monica/AVAIL_VECTORS/q_client_{var}_synthetic.npy')
+  #if q_client is None:
     #logging.info('Could not load q_client - initializing random availabilities')
     #q_client=None
+  except:
+    logging.info('Could not load q_client - initializing random availabilities')
+    q_client=None
 
   if schedule =='none':
     client_datasets_fn = training_utils.build_client_datasets_fn(
