@@ -1,18 +1,13 @@
  #!/bin/bash
-for bd in 0 0.25 0.5
-do
-	for beta in 0.01 0.001
-	do
-		for clients in 2 5 10
-		do
-			for slr in 0.1 1. 10.
-			do
-				bazel run main:federated_trainer -- --task=synthetic --alpha=0 --beta_data=$bd --iid=1 --total_rounds=500 --client_optimizer=sgd --client_learning_rate=0.1 --client_batch_size=20 --server_optimizer=sgd  --clients_per_round=$clients --client_epochs_per_round=1 --root_output_dir=/home/monica/RESULTS/client_availability/synthetic/iid/ --schedule=importance --beta=$beta --server_learning_rate=$slr --experiment_name=synthetic_iid_${bd}_cl${clients}_importance${beta}_slr${slr}				
-			done
-		done
-	done
-done
+# bazel run main:federated_trainer -- --task=synthetic --alpha=0. --beta_data=1. --iid=1 --total_rounds=1000 --client_optimizer=sgd --client_learning_rate=0.01 --client_batch_size=20 --server_optimizer=sgd  --clients_per_round=10 --client_epochs_per_round=1 --root_output_dir=/home/monica/RESULTS/client_availability/syntheticWaveFalseLong/ --schedule=none --server_learning_rate=1. --experiment_name=synthetic01_iid_fedavg_waveFalse --sine_wave=False --var_q_clients=0.5
+# bazel run main:federated_trainer -- --task=synthetic --alpha=0. --beta_data=1. --iid=1 --total_rounds=1000 --client_optimizer=sgd --client_learning_rate=0.01 --client_batch_size=20 --server_optimizer=sgd  --clients_per_round=10 --client_epochs_per_round=1 --root_output_dir=/home/monica/RESULTS/client_availability/syntheticWaveFalseLong/ --schedule=importance --server_learning_rate=1. --experiment_name=synthetic01_iid_importance_waveFalse --sine_wave=False --var_q_clients=0.5 --beta=0.001
+# bazel run main:federated_trainer -- --task=synthetic --alpha=0. --beta_data=1. --iid=1 --total_rounds=1000 --client_optimizer=sgd --client_learning_rate=0.01 --client_batch_size=20 --server_optimizer=sgd  --clients_per_round=10 --client_epochs_per_round=1 --root_output_dir=/home/monica/RESULTS/client_availability/syntheticWaveFalseLong/ --schedule=loss --server_learning_rate=1. --experiment_name=synthetic01_iid_loss_waveFalse --sine_wave=False --var_q_clients=0.5 --loss_pool_size=30
 
+bazel run main:federated_trainer -- --task=synthetic --alpha=1. --beta_data=1. --iid=1 --total_rounds=500 --client_optimizer=sgd --client_learning_rate=0.01 --client_batch_size=20 --server_optimizer=sgd  --clients_per_round=10 --client_epochs_per_round=1 --root_output_dir=/home/monica/RESULTS/client_availability/synthetic_all_avail_iid/ --schedule=none --server_learning_rate=1. --experiment_name=synthetic11_fedavg_waveFalse --sine_wave=False --var_q_clients=0.
+bazel run main:federated_trainer -- --task=synthetic --alpha=1. --beta_data=1. --iid=1 --total_rounds=500 --client_optimizer=sgd --client_learning_rate=0.01 --client_batch_size=20 --server_optimizer=sgd  --clients_per_round=10 --client_epochs_per_round=1 --root_output_dir=/home/monica/RESULTS/client_availability/synthetic_all_avail_iid/  --schedule=importance --server_learning_rate=1. --experiment_name=synthetic11_importance_waveFalse --sine_wave=False --var_q_clients=0. --beta=0.001
+bazel run main:federated_trainer -- --task=synthetic --alpha=1. --beta_data=1. --iid=1 --total_rounds=500 --client_optimizer=sgd --client_learning_rate=0.01 --client_batch_size=20 --server_optimizer=sgd  --clients_per_round=10 --client_epochs_per_round=1 --root_output_dir=/home/monica/RESULTS/client_availability/synthetic_all_avail_iid/ --schedule=loss --server_learning_rate=1. --experiment_name=synthetic11_loss_waveFalse --sine_wave=False --var_q_clients=0. --loss_pool_size=15
 
+bazel run main:federated_trainer -- --task=synthetic --alpha=0. --beta_data=0. --iid=1 --total_rounds=500 --client_optimizer=sgd --client_learning_rate=0.01 --client_batch_size=20 --server_optimizer=sgd  --clients_per_round=10 --client_epochs_per_round=1 --root_output_dir=/home/monica/RESULTS/client_availability/synthetic_all_avail_iid/ --schedule=none --server_learning_rate=1. --experiment_name=synthetic00_fedavg_waveFalse --sine_wave=False --var_q_clients=0.
+bazel run main:federated_trainer -- --task=synthetic --alpha=0. --beta_data=0. --iid=1 --total_rounds=500 --client_optimizer=sgd --client_learning_rate=0.01 --client_batch_size=20 --server_optimizer=sgd  --clients_per_round=10 --client_epochs_per_round=1 --root_output_dir=/home/monica/RESULTS/client_availability/synthetic_all_avail_iid/ --schedule=importance --server_learning_rate=1. --experiment_name=synthetic00_importance_waveFalse --sine_wave=False --var_q_clients=0. --beta=0.001
+bazel run main:federated_trainer -- --task=synthetic --alpha=0. --beta_data=0. --iid=1 --total_rounds=500 --client_optimizer=sgd --client_learning_rate=0.01 --client_batch_size=20 --server_optimizer=sgd  --clients_per_round=10 --client_epochs_per_round=1 --root_output_dir=/home/monica/RESULTS/client_availability/synthetic_all_avail_iid/ --schedule=loss --server_learning_rate=1. --experiment_name=synthetic00_loss_waveFalse --sine_wave=False --var_q_clients=0. --loss_pool_size=15
 
- 
