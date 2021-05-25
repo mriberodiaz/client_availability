@@ -58,7 +58,7 @@ def run_federated(
     alpha: Optional[float] = 0.,
     beta_data: Optional[float] = 0.,
     iid: Optional[int] = 0,
-    num_users: Optional[int] = 1000,
+    num_users: Optional[int] = 100,
     **kwargs):
   """Runs an iterative process on the EMNIST character recognition task.
 
@@ -107,7 +107,11 @@ def run_federated(
       on supported arguments, see
       `federated_research/utils/training_utils.py`.
   """
-
+  logging.info(f' DATA PARAMS: ')
+  logging.info(f'             Num Users: {num_users}')
+  logging.info(f'             alpha: {alpha}')
+  logging.info(f'             beta: {beta}')
+  logging.info(f'             iid: {iid}')
   train_data, test_data, federated_test = synthetic_dataset.generate_federated_softmax_data(
     batch_size = client_batch_size, 
     client_epochs_per_round= client_epochs_per_round,
