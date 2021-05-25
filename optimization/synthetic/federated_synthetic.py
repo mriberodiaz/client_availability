@@ -110,7 +110,7 @@ def run_federated(
   logging.info(f' DATA PARAMS: ')
   logging.info(f'             Num Users: {num_users}')
   logging.info(f'             alpha: {alpha}')
-  logging.info(f'             beta: {beta}')
+  logging.info(f'             beta: {beta_data}')
   logging.info(f'             iid: {iid}')
   train_data, test_data, federated_test = synthetic_dataset.generate_federated_softmax_data(
     batch_size = client_batch_size, 
