@@ -217,6 +217,8 @@ def run_federated(
     else:
       raise ValueError('Loss pool size not specified')
   else:
+    init_p = kwargs['hparam_dict']['initialize_p']
+    logging.info(f'Initializing as p = {init_p}')
     client_datasets_fn = training_utils.build_availability_client_datasets_fn(
       train_dataset = train_data, 
       train_clients_per_round = clients_per_round, 
@@ -227,6 +229,7 @@ def run_federated(
       f_intercept=kwargs['hparam_dict']['f_intercept'], 
       sine_wave = kwargs['hparam_dict']['sine_wave'], 
       q_client = q_client,
+      initialize_p=init_p,
       )
     training_loop_importance.run(
         iterative_process=training_process,
