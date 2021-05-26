@@ -245,9 +245,11 @@ def build_sample_fn(
                                                   probs = probs, 
                                                   output_dtype=tf.float32)
       available_clients = [id_ for i,id_ in enumerate(a) if availability[i]]
+      logging.info(f'AVAIL: {sum(len(available_clients))}')
       if use_p:
         probs_data = p_vector[[i for i,id_ in enumerate(a) if availability[i]]]
         probs_data = probs_data/np.sum(probs_data)
+        logging.info(f'probs_data_shape: {probs_data.shape}')
       else:
         probs_data = np.repeat(1/len(available_clients), len(available_clients))
 
@@ -338,10 +340,12 @@ def build_client_datasets_fn(
 
   def client_datasets(round_num):
     sampled_clients, availability = sample_clients_fn(round_num)
+    logging.info(f'sampled {len(sampled_clients)} clients out of {sum(availability)} available')
     datasets = [
         train_dataset.create_tf_dataset_for_client(client)
         for client in sampled_clients
     ]
+    logging.info(f'BUILD {len(datasets)} DATASETS! ')
     return datasets, availability, sampled_clients
 
   return client_datasets
