@@ -105,6 +105,7 @@ with utils_impl.record_hparam_flags() as schedule_flags:
   flags.DEFINE_boolean('sine_wave', True, 'Whether to use a sine wave to model client availability')
   flags.DEFINE_integer('min_clients', 15, 'Expected minimum number of clients at each round')
   flags.DEFINE_integer('loss_pool_size', 30, 'Number of effective clients participating at each round')
+  flags.DEFINE_boolean('initialize_p', True, 'Whether to initialize r as p or uniformly')
 
 
 with utils_impl.record_hparam_flags() as cifar100_flags:
