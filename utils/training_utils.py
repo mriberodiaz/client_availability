@@ -444,7 +444,7 @@ def build_availability_client_datasets_fn(
     if r_vector is None and initialize_p:
       r_vector = tf.Variable(p_vector, dtype = tf.float32)
     elif r_vector is None and not initialize_p:
-      r_vector = tf.Variable(tf.ones_like(p)*1/p.shape[0], dtype = tf.float32)
+      r_vector = tf.Variable(tf.ones_like(p)*1/p_vector.shape[0], dtype = tf.float32)
     time = round_num%24
     time_availability = f_distribution[time]
     probs = q_client*time_availability
