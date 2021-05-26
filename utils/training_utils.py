@@ -238,20 +238,20 @@ def build_sample_fn(
     probs = q_client*time_availability
     available_clients = []
 
-    while len(available_clients)<size:
-      availability = tf.random.stateless_binomial(shape=(num_clients,), 
+    #while len(available_clients)<size:
+    availability = tf.random.stateless_binomial(shape=(num_clients,), 
                                                   seed=[1,round_num],
                                                   counts=tf.ones(num_clients), 
                                                   probs = probs, 
                                                   output_dtype=tf.float32)
-      available_clients = [id_ for i,id_ in enumerate(a) if availability[i]]
-      logging.info(f'AVAIL: {len(available_clients)}')
-      if use_p:
-        probs_data = p_vector[[i for i,id_ in enumerate(a) if availability[i]]]
-        probs_data = probs_data/np.sum(probs_data)
-        logging.info(f'probs_data_shape: {probs_data.shape}')
-      else:
-        probs_data = np.repeat(1/len(available_clients), len(available_clients))
+    available_clients = [id_ for i,id_ in enumerate(a) if availability[i]]
+      #logging.info(f'AVAIL: {len(available_clients)}')
+    if use_p:
+      probs_data = p_vector[[i for i,id_ in enumerate(a) if availability[i]]]
+      probs_data = probs_data/np.sum(probs_data)
+      #logging.info(f'probs_data_shape: {probs_data.shape}')
+    else:
+      probs_data = np.repeat(1/len(available_clients), len(available_clients))
 
     if isinstance(random_seed, int):
       random_state = np.random.RandomState(get_pseudo_random_int(round_num))
@@ -340,12 +340,12 @@ def build_client_datasets_fn(
 
   def client_datasets(round_num):
     sampled_clients, availability = sample_clients_fn(round_num)
-    logging.info(f'sampled {len(sampled_clients)} clients out of {sum(availability)} available')
+    # logging.info(f'sampled {len(sampled_clients)} clients out of {sum(availability)} available')
     datasets = [
         train_dataset.create_tf_dataset_for_client(client)
         for client in sampled_clients
     ]
-    logging.info(f'BUILD {len(datasets)} DATASETS! ')
+    #logging.info(f'BUILD {len(datasets)} DATASETS! ')
     return datasets, availability, sampled_clients
 
   return client_datasets
@@ -384,6 +384,7 @@ def build_availability_client_datasets_fn(
     f_mult: Optional[float] = 0.4,
     f_intercept: Optional[float] = 0.5,
     q_client: Optional[List[float]]=None,
+    initialize_p=True,
 ) -> Callable[[int], List[tf.data.Dataset]]:
   """Builds the function for generating client datasets at each round.
 
@@ -440,8 +441,10 @@ def build_availability_client_datasets_fn(
     #   raise ValueError('Could not create q! decrease var q!')
 
   def client_datasets(round_num,r_vector=None):
-    if r_vector is None:
+    if r_vector is None and initialize_p:
       r_vector = tf.Variable(p_vector, dtype = tf.float32)
+    elif r_vector is None and not initialize_p:
+      r_vector = tf.Variable(tf.ones_like(p)*1/p.shape[0], dtype = tf.float32)
     time = round_num%24
     time_availability = f_distribution[time]
     probs = q_client*time_availability
