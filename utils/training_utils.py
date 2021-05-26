@@ -245,7 +245,7 @@ def build_sample_fn(
                                                   probs = probs, 
                                                   output_dtype=tf.float32)
       available_clients = [id_ for i,id_ in enumerate(a) if availability[i]]
-      logging.info(f'AVAIL: {sum(len(available_clients))}')
+      logging.info(f'AVAIL: {len(available_clients)}')
       if use_p:
         probs_data = p_vector[[i for i,id_ in enumerate(a) if availability[i]]]
         probs_data = probs_data/np.sum(probs_data)
