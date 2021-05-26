@@ -212,6 +212,7 @@ def run(iterative_process: tff.templates.IterativeProcess,
   loop_start_time = time.time()
   while round_num < total_rounds:
     data_prep_start_time = time.time()
+    logging.info(f'preparing data at round {round_num}')
     federated_train_data,availability, ids_clients = client_datasets_fn(round_num)
     train_metrics = {
         'prepare_datasets_secs': time.time() - data_prep_start_time
