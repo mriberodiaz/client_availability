@@ -35,6 +35,8 @@
 # INVERSE aka waveFalse
 
 for clients in 2 5
+do
 	bazel run main:federated_trainer -- --task=synthetic --alpha=1. --beta_data=1. --iid=0 --total_rounds=500 --client_optimizer=sgd --client_learning_rate=0.01 --client_batch_size=20 --server_optimizer=sgd  --clients_per_round=$clients --client_epochs_per_round=1 --root_output_dir=/home/monica/RESULTS/client_availability/synthetic_indep_non_iid/ --schedule=none --server_learning_rate=1. --experiment_name=synthetic11_fedavg_waveFalse_c$clients--sine_wave=False --var_q_clients=0.5 --num_users=100
 	bazel run main:federated_trainer -- --task=synthetic --alpha=1. --beta_data=1. --iid=0 --total_rounds=500 --client_optimizer=sgd --client_learning_rate=0.01 --client_batch_size=20 --server_optimizer=sgd  --clients_per_round=$clients --client_epochs_per_round=1 --root_output_dir=/home/monica/RESULTS/client_availability/synthetic_indep_non_iid/  --schedule=importance --server_learning_rate=1. --experiment_name=synthetic11_importance__c$clients --sine_wave=False --var_q_clients=0.5 --beta=0.001 --num_users=100
 	bazel run main:federated_trainer -- --task=synthetic --alpha=1. --beta_data=1. --iid=0 --total_rounds=500 --client_optimizer=sgd --client_learning_rate=0.01 --client_batch_size=20 --server_optimizer=sgd  --clients_per_round=$clients --client_epochs_per_round=1 --root_output_dir=/home/monica/RESULTS/client_availability/synthetic_indep_non_iid/ --schedule=loss --server_learning_rate=1. --experiment_name=synthetic11_loss__c$clients --sine_wave=False --var_q_clients=0.5 --loss_pool_size=15 --num_users=100
+done
